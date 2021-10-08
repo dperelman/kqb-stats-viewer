@@ -1,0 +1,228 @@
+<!doctype html>
+<html>
+  <head>
+<style type="text/css" >
+body {
+  background: #2b0e50;
+  font-family: sans;
+  color: white;
+}
+#stats .winner {
+  text-transform: uppercase;
+  background: black;
+  text-align: center;
+}
+#stats .winner.gold-winner {
+  color: #ee914b;
+  text-shadow: 0 0.07em 2px #b84d1f;
+}
+#stats .winner.blue-winner {
+  color: #40c4f2;
+  text-shadow: 0 0.07em 2px #495df1;
+}
+#stats .winner.unknown-winner {
+  color: red;
+}
+#stats .winner::before, #stats .winner::after {
+  margin: 0 1ex;
+  text-shadow: none;
+}
+#stats .winner::before {
+  color: #40c4f2;
+  direction: rtl;
+  unicode-bidi: bidi-override;
+}
+#stats .winner::after {
+  color: #ee914b;
+}
+#stats .winner.blue-won-0::before, #stats .winner.gold-won-0::after {
+  content: "▯▯▯";
+}
+#stats .winner.blue-won-1::before, #stats .winner.gold-won-1::after {
+  content: "▮▯▯";
+}
+#stats .winner.blue-won-2::before, #stats .winner.gold-won-2::after {
+  content: "▮▮▯";
+}
+#stats .winner.blue-won-3::before, #stats .winner.gold-won-3::after {
+  content: "▮▮▮";
+}
+
+#stats .playerMatchStats {
+  text-shadow: 0 0.1em 1px #854aea;
+}
+
+#stats .playerMatchStats .identification .avatar.queen::before {
+  content: "👑";
+}
+
+#stats .playerMatchStats .identification .avatar.worker::before {
+  content: "🐝";
+}
+
+#stats .playerMatchStats .summaryStats {
+  text-align: right;
+}
+
+#stats .playerMatchStats .blue {
+  color: #03c9ee;
+}
+#stats .playerMatchStats .blue .summaryStats {
+  background: #4664dd;
+}
+
+#stats .playerMatchStats .gold {
+  color: #ecc534;
+}
+#stats .playerMatchStats .gold .summaryStats {
+  background: #c3642b;
+}
+
+#stats .playerMatchStats .summaryStats .best {
+  color: white;
+  font-weight: bold;
+}
+
+#stats .playerMatchStats .summaryStats .kills::before {
+  content: "🗡️";
+}
+#stats .playerMatchStats .summaryStats .deaths::before {
+  content: "💀";
+}
+#stats .playerMatchStats .summaryStats .berries::before {
+  content: "🫐";
+}
+#stats .playerMatchStats .summaryStats .snail::before {
+  content: "🐌";
+}
+</style>
+    <script language="javascript" >
+      async function openFile() {
+        let file;
+        [file] = await window.showOpenFilePicker({
+          types: [
+            {
+              description: "JSON KQB stats file",
+              accept: {
+                "application/json": ['.json']
+              }
+            },
+          ],
+          excludeAcceptAllOption: true,
+          multiple: false,
+        });
+        if (!file) return;
+        displayStats(JSON.parse(await (await file.getFile()).text()));
+      }
+      function displayStats(stats) {
+        const div = document.getElementById("stats");
+
+        const header = document.createElement("h2");
+        header.classList.add("winner");
+        const goldWins = stats.gameWinners.filter(v => v == 1).length;
+        const blueWins = stats.gameWinners.filter(v => v == 2).length;
+        header.classList.add("gold-won-" + goldWins);
+        header.classList.add("blue-won-" + blueWins);
+        if (goldWins == 3) {
+          header.classList.add("gold-winner");
+          header.innerText = "Gold wins";
+        } else if (blueWins == 3) {
+          header.classList.add("blue-winner");
+          header.innerText = "Blue wins";
+        } else {
+          header.classList.add("unknown-winner");
+          header.innerText = "Incomplete match?";
+        }
+        div.appendChild(header);
+
+        const teams = ["blue", "gold"];
+        const teamMap = {2: "blue", 1: "gold"};
+        const players = {};
+        for (const team of [2, 1]) {
+          const teamName = teamMap[team];
+          // queens first
+          players[teamName] =
+            stats.playerMatchStats
+                 .filter(p => p.team == team && p.entityType == 3)
+                .concat(stats.playerMatchStats
+                 .filter(p => p.team == team && p.entityType != 3))
+                .map(p => p.nickname);
+        }
+
+        const majorStats = ["kills", "berries", "deaths", "snail"];
+        const best = {};
+        for (const stat of majorStats) {
+          const f = (stat == "deaths" ? Math.min : Math.max);
+          best[stat] = f(...stats.playerMatchStats.map(p => p[stat]));
+        }
+
+        const matchStats = document.createElement("div");
+        matchStats.classList.add("matchStats");
+        const playerMatchStats = document.createElement("div");
+        playerMatchStats.classList.add("playerMatchStats");
+        for (const team of teams) {
+          const teamMatchStats = document.createElement("div");
+          teamMatchStats.classList.add(team);
+
+          for (const nickname of players[team]) {
+            const playerStats = stats.playerMatchStats
+                                .filter(p => p.nickname == nickname)[0];
+            const player = document.createElement("div");
+            player.classList.add("player");
+
+            const identification = document.createElement("div");
+            identification.classList.add("identification");
+
+            const nameDiv = document.createElement("div");
+            nameDiv.classList.add("nickname");
+            nameDiv.innerText = nickname;
+            identification.appendChild(nameDiv);
+
+            const avatar = document.createElement("div");
+            avatar.classList.add("avatar");
+            avatar.classList.add("entitySkin-" + playerStats.entitySkin);
+            avatar.classList.add("entityType-" + playerStats.entityType);
+            avatar.classList.add(playerStats.entityType == 3
+                                  ? "queen"
+                                  : "worker");
+            identification.appendChild(avatar);
+            player.appendChild(identification);
+
+            const summaryStats = document.createElement("div");
+            summaryStats.classList.add("summaryStats");
+            for (const statName of majorStats) {
+              const statDisplay = document.createElement("div");
+              statDisplay.classList.add(statName);
+              statDisplay.innerText = playerStats[statName];
+              if (playerStats[statName] == best[statName]) {
+                statDisplay.classList.add("best");
+              }
+              summaryStats.appendChild(statDisplay);
+            }
+            player.appendChild(summaryStats);
+
+            teamMatchStats.appendChild(player);
+          }
+
+          playerMatchStats.appendChild(teamMatchStats);
+        }
+        matchStats.appendChild(playerMatchStats);
+        div.appendChild(matchStats);
+
+        const detailedStats = document.createElement("div");
+        detailedStats.classList.add("detailedStats");
+        div.appendChild(detailedStats);
+
+        const jsonDisplay = document.createElement("pre");
+        jsonDisplay.classList.add("rawJson");
+        jsonDisplay.innerText = JSON.stringify(stats, null, 2);
+        div.appendChild(jsonDisplay);
+      }
+    </script>
+  </head>
+  <body>
+    <button id="open" onclick="openFile()">Open</button>
+    <div id="stats"></div>
+  </body>
+</html>
+
