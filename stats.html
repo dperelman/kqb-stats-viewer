@@ -27,6 +27,9 @@ a {
   text-transform: uppercase;
   background: black;
   text-align: center;
+  position: sticky;
+  top: 0;
+  z-index: 1;
 }
 #stats .gold-winner {
   color: #ee914b;
@@ -70,8 +73,13 @@ a {
 }
 #stats .matchStats .maps {
   grid-column: 1;
+  position: sticky;
+  top: 0;
 }
 #stats .matchStats .playerMatchStats {
+  grid-column: 2;
+}
+#stats .matchStats .detailedStats {
   grid-column: 2;
 }
 
@@ -246,7 +254,7 @@ a {
 #stats .playerMatchStats .summaryStats .snail::before {
   content: "🐌";
 }
-</style>
+    </style>
     <script language="javascript" >
       async function openFile() {
         let file;
@@ -497,11 +505,11 @@ a {
           playerMatchStats.appendChild(teamMatchStats);
         }
         matchStats.appendChild(playerMatchStats);
-        div.appendChild(matchStats);
 
         const detailedStats = document.createElement("div");
         detailedStats.classList.add("detailedStats");
-        div.appendChild(detailedStats);
+        matchStats.appendChild(detailedStats);
+        div.appendChild(matchStats);
 
         const jsonDisplay = document.createElement("pre");
         jsonDisplay.classList.add("rawJson");
