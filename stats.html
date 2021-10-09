@@ -259,8 +259,19 @@ a {
   content: "🐌";
 }
 
+#stats .detailSection {
+  text-align: center;
+}
+#stats .detailedStats table {
+  border-collapse: collapse;
+  margin: auto;
+}
 #stats .detailedStats table td {
   text-align: center;
+  padding: 0.2em;
+  border-top: solid 4px #2b0e50;
+  border-bottom: solid 4px #2b0e50;
+  min-width: 5ex;
 }
 #stats .detailedStats table td.nickname {
   text-align: left;
@@ -271,6 +282,104 @@ a {
 }
 #stats .detailedStats table td.na::before {
   content: "--";
+}
+
+#stats .detailedStats table .blank {
+  background: none !important;
+  border: none !important;
+}
+#stats .detailedStats table thead th {
+  background: #6d15b4;
+  vertical-align: bottom;
+  border-top: 0;
+}
+#stats .detailedStats table thead tr.top th,
+#stats .detailedStats table thead tr th.workerDeaths,
+#stats .detailedStats table thead tr th.workerKills,
+#stats .detailedStats table thead tr th.uptime {
+  border-right: solid 4px #2b0e50;
+}
+#stats .detailedStats table thead tr.top th,
+#stats .detailedStats table thead tr th.queenKills,
+#stats .detailedStats table thead tr th.warriorDeaths,
+#stats .detailedStats table thead tr th.berryDunks {
+  border-left: solid 4px #2b0e50;
+}
+#stats .detailedStats table thead tr.bottom th,
+#stats .detailedStats table thead tr th.snail {
+  border-bottom: solid 4px #9a1cf7;
+}
+#stats .detailedStats table thead tr.top th {
+  border-top-left-radius: 0.3em;
+  border-top-right-radius: 0.3em;
+}
+#stats .detailedStats table thead th[colspan] {
+  border-bottom: solid white;
+}
+
+#stats .detailedStats table tbody td.nickname {
+  border-top-left-radius: 0.3em;
+  border-bottom-left-radius: 0.3em;
+}
+#stats .detailedStats table tbody td.uptime {
+  border-top-right-radius: 0.3em;
+  border-bottom-right-radius: 0.3em;
+}
+
+#stats .detailedStats table tbody.blue td.nickname,
+#stats .detailedStats table tbody.blue td.workerKills,
+#stats .detailedStats table tbody.blue td.workerDeaths,
+#stats .detailedStats table tbody.blue td.berryThrows,
+#stats .detailedStats table tbody.blue td.snail {
+  border-right: solid 3px #1666cd;
+}
+#stats .detailedStats table tbody.blue td.nickname {
+  background: #1b2dac;
+}
+#stats .detailedStats table tbody.blue td {
+  background: #2143b1;
+}
+#stats .detailedStats table tbody.blue td.warriorKills,
+#stats .detailedStats table tbody.blue td.berryThrows,
+#stats .detailedStats table tbody.blue td.uptime {
+  background: #1145cf;
+}
+#stats .detailedStats table tbody.blue td.warriorDeaths {
+  background: #0f2eb4;
+}
+#stats .detailedStats table tbody.blue td.workerDeaths,
+#stats .detailedStats table tbody.blue td.snail {
+  background: #142b9f;
+}
+
+#stats .detailedStats table tbody.gold td.nickname {
+  background: #953c2f;
+}
+#stats .detailedStats table tbody.gold td.nickname,
+#stats .detailedStats table tbody.gold td.workerKills,
+#stats .detailedStats table tbody.gold td.workerDeaths,
+#stats .detailedStats table tbody.gold td.berryThrows,
+#stats .detailedStats table tbody.gold td.snail {
+  border-right: solid 3px #ae6129;
+}
+#stats .detailedStats table tbody.gold td {
+  background: #a7412f;
+}
+#stats .detailedStats table tbody.gold td.warriorKills,
+#stats .detailedStats table tbody.gold td.berryThrows,
+#stats .detailedStats table tbody.gold td.uptime {
+  background: #ac4f2f;
+}
+#stats .detailedStats table tbody.gold td.warriorDeaths {
+  background: #964029;
+}
+#stats .detailedStats table tbody.gold td.workerDeaths,
+#stats .detailedStats table tbody.gold td.snail {
+  background: #873718;
+}
+
+pre.rawJson {
+  overflow-x: scroll;
 }
     </style>
     <script language="javascript" >
@@ -539,44 +648,54 @@ a {
 
         detailedStatsInfo = [
           {
+            class: "queenKills",
             property: "totalQueenKillCount",
             queen: true,
           },
           {
+            class: "warriorKills",
             property: "totalWarriorKillCount",
             queen: true,
           },
           {
+            class: "workerKills",
             property: "totalWorkerKillCount",
             queen: true,
           },
           {
+            class: "warriorDeaths",
             property: "warriorAndQueenDeathCount",
             queen: true,
           },
           {
+            class: "workerDeaths",
             property: "workerDeathCount",
             queen: false,
           },
           {
+            class: "berryDunks",
             property: "totalBerryDeposits",
             queen: false,
             omitForQueen: true,
           },
           {
+            class: "berryThrows",
             property: "totalBerryThrowIns",
             queen: 2,
           },
           {
+            class: "snail",
             property: "totalSnailDistance",
             queen: false,
           },
           {
+            class: "gates",
             property: undefined,
             queen: true,
             percentage: true,
           },
           {
+            class: "uptime",
             property: "timeSpentAsWarriorSeconds",
             queen: false,
             percentage: true,
@@ -598,7 +717,7 @@ a {
           const detailSection = document.createElement("div");
           detailSection.classList.add("detailSection");
           const detailTitle = document.createElement("h3");
-          detailTitle.innerText = i == -1 ? "All maps" : "Map " + (i+1);
+          detailTitle.innerText = i == -1 ? "Entire set" : "Map " + (i+1);
           detailSection.appendChild(detailTitle);
           const detailTable = document.querySelector("#detailedStats")
                               .content.cloneNode(true).querySelector("table");
@@ -667,6 +786,7 @@ a {
                 }
 
                 const cell = document.createElement("td");
+                cell.classList.add(detail.class);
                 if (!(playerIsQueen && "omitForQueen" in detail)) {
                   row.appendChild(cell);
                 }
@@ -689,7 +809,7 @@ a {
                   const percentage = totalSeconds == 0 || denominator == 0
                         ? 0
                         : Math.round(totalSeconds / denominator * 1000) / 10;
-                  cell.innerText = (percentage == 0 
+                  cell.innerText = (percentage == 0
                                     ? 0
                                     : percentage.toFixed(1))
                                    + '%';
@@ -705,12 +825,13 @@ a {
             }
             const totalRow = document.createElement("tr");
             totalRow.classList.add("total");
-            
+
             const blank = document.createElement("td");
             blank.classList.add("blank");
             totalRow.appendChild(blank);
             for (let detail of detailedStatsInfo) {
               const cell = document.createElement("td");
+              cell.classList.add(detail.class);
               totalRow.appendChild(cell);
 
               if (detail.percentage) {
@@ -724,7 +845,7 @@ a {
                 const percentage =
                   Math.round(totalSeconds / denominator * 1000)
                   / 10;
-                cell.innerText = (percentage == 0 
+                cell.innerText = (percentage == 0
                                   ? 0
                                   : percentage.toFixed(1))
                                  + '%';
@@ -753,25 +874,25 @@ a {
     <template id="detailedStats">
       <table>
         <thead>
-          <tr>
+          <tr class="top">
             <th class="blank"></th>
-            <th colspan="3">Kills</th>
-            <th colspan="2">Deaths</th>
-            <th colspan="2">Berries</th>
-            <th rowspan="2">Snail</th>
-            <th colspan="2">Uptime</th>
+            <th colspan="3" class="kills">🗡️</th>
+            <th colspan="2" class="deaths">💀</th>
+            <th colspan="2" class="berries">🫐</th>
+            <th rowspan="2" class="snail">🐌</th>
+            <th colspan="2" class="uptime">⏲️</th>
           </tr>
-          <tr>
+          <tr class="bottom">
             <th class="blank"></th>
-            <th>Queen</th>
-            <th>Warrior</th>
-            <th>Worker</th>
-            <th>Queen/Warrior</th>
-            <th>Worker</th>
-            <th>Dunks</th>
-            <th>Throws</th>
-            <th>Gates</th>
-            <th>Warrior</th>
+            <th class="queenKills">👑</th>
+            <th class="warriorKills">⚔️</th>
+            <th class="workerKills">🐝</th>
+            <th class="warriorDeaths">👑/⚔️</th>
+            <th class="workerDeaths">🐝</th>
+            <th class="berryDunks" title="dunked berries">🏀</th>
+            <th class="berryThrows" title="thrown berries">↷</th>
+            <th class="gates" title="gate control">⛩️</th>
+            <th class="uptime" title="warrior uptime">⚔️</th>
           </tr>
         </thead>
       </table>
