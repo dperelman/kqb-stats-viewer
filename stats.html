@@ -93,16 +93,41 @@ body {
 
 #stats .playerMatchStats .player {
   grid-row: 1;
-  width: 20ex;
+  width: 18ex;
   text-align: center;
 }
 
+#stats .playerMatchStats .identification {
+  min-height: 7em;
+  position: relative;
+}
+
+#stats .playerMatchStats .identification .avatar {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  font-size: 2em;
+}
 #stats .playerMatchStats .identification .avatar.queen::before {
   content: "👑";
 }
-
 #stats .playerMatchStats .identification .avatar.worker::before {
   content: "🐝";
+}
+#stats .playerMatchStats .identification .avatar.worker.entitySkin-1::before {
+  content: "💪🐝";
+}
+#stats .playerMatchStats .identification .avatar.worker.entitySkin-2::before {
+  content: "🦓🐝";
+}
+#stats .playerMatchStats .identification .avatar.worker.entitySkin-3::before {
+  content: "💀👕🐝";
+}
+#stats .playerMatchStats .identification .avatar.worker.entitySkin-4::before {
+  content: "🪢🐝";
+}
+#stats .playerMatchStats .identification .avatar.worker.entitySkin-5::before {
+  content: "🏁👕🐝";
 }
 
 #stats .playerMatchStats .summaryStats {
