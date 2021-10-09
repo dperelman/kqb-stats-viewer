@@ -100,6 +100,10 @@ a {
   content: "🗡️";
 }
 
+#stats .totalDuration::before {
+  content: "⏲️";
+}
+
 .nickname::after {
   margin-left: 1ex;
 }
@@ -122,7 +126,7 @@ a {
   content: "🌋✨";
 }
 
-#stats .playerMatchStats {
+#stats .playerMatchStats, #stats .totalDuration {
   text-shadow: 0 0.1em 1px #854aea;
 }
 
@@ -253,6 +257,20 @@ a {
 }
 #stats .playerMatchStats .summaryStats .snail::before {
   content: "🐌";
+}
+
+#stats .detailedStats table td {
+  text-align: center;
+}
+#stats .detailedStats table td.nickname {
+  text-align: left;
+  text-shadow: 0 0.1em 1px #854aea;
+}
+#stats .detailedStats table td.percentage {
+  text-align: right;
+}
+#stats .detailedStats table td.na::before {
+  content: "--";
 }
     </style>
     <script language="javascript" >
@@ -428,6 +446,16 @@ a {
           maps.appendChild(map);
         }
 
+        const totalTime = document.createElement("div");
+        totalTime.classList.add("totalDuration");
+        const totalSeconds = stats.games.map(g => g.duration)
+                                        .reduce((a, b) => a + b);
+        totalTime.innerText = String(Math.floor(totalSeconds / 60))
+                              .padStart(2, '0') + ":"
+                              + String(Math.floor(totalSeconds % 60))
+                                .padStart(2, '0');
+        maps.appendChild(totalTime);
+
         matchStats.appendChild(maps);
 
         const playerMatchStats = document.createElement("div");
@@ -508,6 +536,170 @@ a {
 
         const detailedStats = document.createElement("div");
         detailedStats.classList.add("detailedStats");
+
+        detailedStatsInfo = [
+          {
+            property: "totalQueenKillCount",
+            queen: true,
+          },
+          {
+            property: "totalWarriorKillCount",
+            queen: true,
+          },
+          {
+            property: "totalWorkerKillCount",
+            queen: true,
+          },
+          {
+            property: "warriorAndQueenDeathCount",
+            queen: true,
+          },
+          {
+            property: "workerDeathCount",
+            queen: false,
+          },
+          {
+            property: "totalBerryDeposits",
+            queen: false,
+            omitForQueen: true,
+          },
+          {
+            property: "totalBerryThrowIns",
+            queen: 2,
+          },
+          {
+            property: "totalSnailDistance",
+            queen: false,
+          },
+          {
+            property: undefined,
+            queen: true,
+            percentage: true,
+          },
+          {
+            property: "timeSpentAsWarriorSeconds",
+            queen: false,
+            percentage: true,
+          },
+        ];
+
+        let allMapsDetailTable;
+        for (let i = -1; i < stats.games.length; i++) {
+          const detailSection = document.createElement("div");
+          detailSection.classList.add("detailSection");
+          const detailTitle = document.createElement("h3");
+          detailTitle.innerText = i == -1 ? "All maps" : "Map " + (i+1);
+          detailSection.appendChild(detailTitle);
+          const detailTable = document.querySelector("#detailedStats")
+                              .content.cloneNode(true).querySelector("table");
+          detailSection.appendChild(detailTable);
+          detailedStats.appendChild(detailSection);
+
+          if (i == -1) {
+            allMapsDetailTable = detailTable;
+            continue;
+          }
+          for (const team of teams) {
+            const tbody = document.createElement("tbody");
+            tbody.classList.add(team);
+
+            const teamTotals = {};
+            for (let detail of detailedStatsInfo) {
+              if (detail.property) {
+                teamTotals[detail.property] = 0;
+              }
+            }
+            const gateProperty = team == "blue" ? "timeAsBlue" : "timeAsRed";
+            teamTotals["gates"] = stats.games[i].gateControls
+                                                .map(a => a[gateProperty])
+                                                .reduce((a, b) => a + b)
+                                  / stats.games[i].totalGates;
+            teamTotals["workers"] = 0;
+
+            for (const nickname of players[team]) {
+              const gameStatsList = stats.games[i].playerStats
+                                    .filter(s => s.nickname == nickname);
+              if (gameStatsList.length == 0) break;
+              const gameStats = gameStatsList[0];
+              const playerIsQueen = gameStats.entityType == 3;
+              if (!playerIsQueen) teamTotals["workers"]++;
+
+              const row = document.createElement("tr");
+              row.classList.add("playerRow");
+
+              const nameCell = document.createElement("td");
+              nameCell.classList.add("nickname");
+              nameCell.innerText = nickname;
+              row.appendChild(nameCell);
+
+              for (let detail of detailedStatsInfo) {
+                if (detail.property) {
+                  teamTotals[detail.property] += gameStats[detail.property];
+                }
+
+                const cell = document.createElement("td");
+                if (!(playerIsQueen && "omitForQueen" in detail)) {
+                  row.appendChild(cell);
+                }
+                if (detail.percentage) cell.classList.add("percentage");
+                if (!detail.queen && playerIsQueen
+                    || !detail.property && !playerIsQueen) {
+                  cell.classList.add("na");
+                  continue;
+                }
+                if (playerIsQueen && detail.queen && detail.queen !== true) {
+                  cell.colSpan = detail.queen;
+                }
+                if (detail.percentage) {
+                  const totalSeconds = detail.property
+                          ? gameStats[detail.property]
+                          : teamTotals["gates"];
+                  const percentage =
+                    Math.round(totalSeconds / stats.games[i].duration * 1000)
+                    / 10;
+                  cell.innerText = percentage + '%';
+                } else {
+                  cell.innerText = detail.property == "totalBerryDeposits"
+                        ? gameStats[detail.property]
+                            - gameStats["totalBerryThrowIns"]
+                        : gameStats[detail.property];
+                }
+              }
+
+              tbody.appendChild(row);
+            }
+            const totalRow = document.createElement("tr");
+            totalRow.classList.add("total");
+            
+            const blank = document.createElement("td");
+            blank.classList.add("blank");
+            totalRow.appendChild(blank);
+            for (let detail of detailedStatsInfo) {
+              const cell = document.createElement("td");
+              totalRow.appendChild(cell);
+
+              if (detail.percentage) {
+                cell.classList.add("percentage");
+                const totalSeconds = detail.property
+                        ? teamTotals[detail.property] / teamTotals["workers"]
+                        : teamTotals["gates"];
+                const percentage =
+                  Math.round(totalSeconds / stats.games[i].duration * 1000)
+                  / 10;
+                cell.innerText = percentage + '%';
+              } else {
+                cell.innerText = detail.property == "totalBerryDeposits"
+                      ? teamTotals[detail.property]
+                          - teamTotals["totalBerryThrowIns"]
+                      : teamTotals[detail.property];
+              }
+            }
+            tbody.appendChild(totalRow);
+
+            detailTable.appendChild(tbody);
+          }
+        }
+
         matchStats.appendChild(detailedStats);
         div.appendChild(matchStats);
 
@@ -517,6 +709,32 @@ a {
         div.appendChild(jsonDisplay);
       }
     </script>
+    <template id="detailedStats">
+      <table>
+        <thead>
+          <tr>
+            <th class="blank"></th>
+            <th colspan="3">Kills</th>
+            <th colspan="2">Deaths</th>
+            <th colspan="2">Berries</th>
+            <th rowspan="2">Snail</th>
+            <th colspan="2">Uptime</th>
+          </tr>
+          <tr>
+            <th class="blank"></th>
+            <th>Queen</th>
+            <th>Warrior</th>
+            <th>Worker</th>
+            <th>Queen/Warrior</th>
+            <th>Worker</th>
+            <th>Dunks</th>
+            <th>Throws</th>
+            <th>Gates</th>
+            <th>Warrior</th>
+          </tr>
+        </thead>
+      </table>
+    </template>
   </head>
   <body>
     <a id="github" href="https://github.com/dperelman/kqb-stats-viewer">
