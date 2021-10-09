@@ -24,11 +24,11 @@ body {
   background: black;
   text-align: center;
 }
-#stats .winner.gold-winner {
+#stats .gold-winner {
   color: #ee914b;
   text-shadow: 0 0.07em 2px #b84d1f;
 }
-#stats .winner.blue-winner {
+#stats .blue-winner {
   color: #40c4f2;
   text-shadow: 0 0.07em 2px #495df1;
 }
@@ -58,6 +58,34 @@ body {
 }
 #stats .winner.blue-won-3::before, #stats .winner.gold-won-3::after {
   content: "▮▮▮";
+}
+
+#stats .matchStats {
+  display: grid;
+  align-items: center;
+}
+#stats .matchStats .maps {
+  grid-column: 1;
+}
+#stats .matchStats .playerMatchStats {
+  grid-column: 2;
+}
+
+#stats .map {
+  margin: 3em 0;
+}
+
+#stats .map::before {
+  margin-right: 0.5ex;
+}
+#stats .map.snail-victory::before {
+  content: "🐌";
+}
+#stats .map.eco-victory::before {
+  content: "🫐";
+}
+#stats .map.mil-victory::before {
+  content: "🗡️";
 }
 
 .nickname::after {
@@ -349,6 +377,47 @@ body {
 
         const matchStats = document.createElement("div");
         matchStats.classList.add("matchStats");
+
+        const maps = document.createElement("ol");
+        maps.classList.add("maps");
+
+        const mapNames = {
+          2:  "Pod",
+          4:  "BQK",
+          7:  "Helix",
+          11: "Tally",
+          14: "Spire",
+          15: "Split",
+          17: "Nest",
+          18: "Throne",
+        }
+        const winNames ={
+          1: "Mil",
+          2: "Eco",
+          3: "Snail",
+        }
+
+        for (let i = 0; i < stats.mapPool.length; i++) {
+          const map = document.createElement("li");
+          map.classList.add("map");
+          map.classList.add("map-" + mapNames[stats.mapPool[i]].toLowerCase());
+          if (i in stats.gameWinners) {
+            map.classList.add(teamMap[stats.gameWinners[i]] + "-winner");
+            map.classList.add(winNames[stats.winConditions[i]].toLowerCase()
+                              + "-victory");
+            const time = Math.floor(stats.games[i].duration / 60) + ":"
+                         + String(Math.floor(stats.games[i].duration % 60))
+                           .padStart(2, '0');
+            map.innerText = mapNames[stats.mapPool[i]]
+                            + " (" + time + ")";
+          } else {
+            map.innerText = mapNames[stats.mapPool[i]];
+          }
+          maps.appendChild(map);
+        }
+
+        matchStats.appendChild(maps);
+
         const playerMatchStats = document.createElement("div");
         playerMatchStats.classList.add("playerMatchStats");
         for (const team of teams) {
