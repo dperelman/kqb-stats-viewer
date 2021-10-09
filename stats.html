@@ -167,6 +167,9 @@ body {
     <script language="javascript" >
       async function openFile() {
         let file;
+        if (!window.showOpenFilePicker) {
+          alert("Sorry, your web browser is unsupported. Try a recent build of Google Chrome/Chromium.");
+        }
         [file] = await window.showOpenFilePicker({
           types: [
             {
@@ -190,6 +193,9 @@ body {
       let previousFilename;
       let nextFilename;
       async function openDir() {
+        if (!window.showDirectoryPicker) {
+          alert("Sorry, your web browser is unsupported. Try a recent build of Google Chrome/Chromium.");
+        }
         dir = await window.showDirectoryPicker();
         if (dir) {
           document.getElementById("dirhelp").style.display = "none";
