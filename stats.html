@@ -7,6 +7,12 @@ body {
   font-family: sans;
   color: white;
 }
+.navigation {
+  text-align: center;
+}
+.navigation button {
+  font-size: 3em;
+}
 #stats .winner {
   text-transform: uppercase;
   background: black;
@@ -112,10 +118,73 @@ body {
           multiple: false,
         });
         if (!file) return;
+        document.getElementById("filename").innerText = file.name;
         displayStats(JSON.parse(await (await file.getFile()).text()));
       }
+      let dir;
+      let seenFiles;
+      let currentFilename;
+      let previousFilename;
+      let nextFilename;
+      async function openDir() {
+        dir = await window.showDirectoryPicker();
+        if (dir) {
+          seenFiles = new Map();
+          previousFilename = undefined;
+          nextFilename = undefined;
+          currentFilename = undefined;
+          document.getElementById('latest').disabled = false;
+          loadLatest();
+        }
+      }
+      async function refreshDir() {
+        const newFiles = new Map();
+        for await (const entry of dir.values()) {
+          if (!seenFiles.has(entry.name)) {
+            const timestamp = (await entry.getFile()).lastModified;
+            newFiles.set(entry.name, timestamp);
+            seenFiles.set(entry.name, timestamp);
+          }
+        }
+
+        return newFiles;
+      }
+      async function loadByFilename(filename) {
+        document.getElementById("filename").innerText = filename;
+
+        currentFilename = filename;
+        const currentTimestamp = seenFiles.get(filename);
+        const prevFiles = Array.from(seenFiles.entries())
+                          .filter(f => f[1] < currentTimestamp)
+        previousFilename = prevFiles.length == 0
+                ? undefined
+                : prevFiles.reduce((a, b) => a[1]>b[1] ? a : b)[0]
+        document.getElementById("prev").disabled = !previousFilename;
+        const nextFiles = Array.from(seenFiles.entries())
+                          .filter(f => f[1] > currentTimestamp)
+        nextFilename = nextFiles.length == 0
+                ? undefined
+                : nextFiles.reduce((a, b) => a[1]<b[1] ? a : b)[0]
+        document.getElementById("next").disabled = !nextFilename;
+
+        const file = await dir.getFileHandle(filename);
+        displayStats(JSON.parse(await (await file.getFile()).text()));
+      }
+      async function loadLatest() {
+        const newFiles = await refreshDir();
+        const files = newFiles.size > 0 ? newFiles : seenFiles;
+        loadByFilename(Array.from(files.entries()).reduce((a, b) => a[1]>b[1] ? a : b)[0]);
+      }
+      async function loadNext() {
+        loadByFilename(nextFilename);
+      }
+      async function loadPrevious() {
+        loadByFilename(previousFilename);
+      }
+
       function displayStats(stats) {
         const div = document.getElementById("stats");
+        while (div.firstChild) div.removeChild(div.lastChild);
 
         const header = document.createElement("h2");
         header.classList.add("winner");
@@ -221,7 +290,15 @@ body {
     </script>
   </head>
   <body>
-    <button id="open" onclick="openFile()">Open</button>
+    <button id="openDir" onclick="openDir()">Open directory</button>
+    <button id="open" onclick="openFile()">Open file</button>
+    <br />
+    <div class="navigation">
+      <button id="prev" onclick="loadPrevious()" disabled>&lt; Previous</button>
+      <button id="next" onclick="loadNext()" disabled>Next &gt;</button>
+      <button id="latest" onclick="loadLatest()" disabled>Jump to Newest ⇉</button>
+    </div>
+    <h1 id="matchName"><span id="filename"></span></h1>
     <div id="stats"></div>
   </body>
 </html>
