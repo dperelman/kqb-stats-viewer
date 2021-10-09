@@ -837,14 +837,16 @@ pre.rawJson {
               if (detail.percentage) {
                 cell.classList.add("percentage");
                 const totalSeconds = detail.property
-                        ? teamTotals[detail.property] / teamTotals["workers"]
-                        : teamTotals["gates"];
+                      ? (teamTotals["workers"] == 0
+                        ? 0
+                        : teamTotals[detail.property] / teamTotals["workers"])
+                      : teamTotals["gates"];
                 const denominator = detail.property
                       ? duration
                       : gateTotalDuration
-                const percentage =
-                  Math.round(totalSeconds / denominator * 1000)
-                  / 10;
+                const percentage = totalSeconds == 0 || denominator == 0
+                      ? 0
+                      : Math.round(totalSeconds / denominator * 1000) / 10;
                 cell.innerText = (percentage == 0
                                   ? 0
                                   : percentage.toFixed(1))
