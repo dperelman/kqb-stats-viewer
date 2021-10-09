@@ -58,6 +58,17 @@ body {
   text-shadow: 0 0.1em 1px #854aea;
 }
 
+#stats .playerMatchStats .blue, #stats .playerMatchStats .gold {
+  display: grid;
+  margin: 2em;
+}
+
+#stats .playerMatchStats .player {
+  grid-row: 1;
+  width: 20ex;
+  text-align: center;
+}
+
 #stats .playerMatchStats .identification .avatar.queen::before {
   content: "👑";
 }
@@ -67,20 +78,41 @@ body {
 }
 
 #stats .playerMatchStats .summaryStats {
+  display: inline-grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  place-items: stretch;
+  width: 100%;
+  text-align: left;
+}
+
+#stats .playerMatchStats .summaryStats div {
+  padding: 0.2em;
+}
+
+#stats .playerMatchStats .blue .summaryStats div {
+  border: 3px solid #3fc1f6;
+}
+
+#stats .playerMatchStats .gold .summaryStats div {
+  border: 3px solid #efc507;
+}
+
+#stats .playerMatchStats .summaryStats span {
+  float: right;
   text-align: right;
 }
 
 #stats .playerMatchStats .blue {
   color: #03c9ee;
 }
-#stats .playerMatchStats .blue .summaryStats {
+#stats .playerMatchStats .blue .summaryStats div {
   background: #4664dd;
 }
 
 #stats .playerMatchStats .gold {
   color: #ecc534;
 }
-#stats .playerMatchStats .gold .summaryStats {
+#stats .playerMatchStats .gold .summaryStats div {
   background: #c3642b;
 }
 
@@ -89,14 +121,38 @@ body {
   font-weight: bold;
 }
 
+#stats .playerMatchStats .summaryStats .kills {
+  grid-row: 1;
+  grid-column: 1;
+  border-top-left-radius: 0.5em;
+}
 #stats .playerMatchStats .summaryStats .kills::before {
   content: "🗡️";
+}
+#stats .playerMatchStats .summaryStats .deaths {
+  grid-row: 2;
+  grid-column: 1;
+  border-bottom-left-radius: 0.5em;
+  border-top: 0 !important;
 }
 #stats .playerMatchStats .summaryStats .deaths::before {
   content: "💀";
 }
+#stats .playerMatchStats .summaryStats .berries {
+  grid-row: 1;
+  grid-column: 2;
+  border-top-right-radius: 0.5em;
+  border-left: 0 !important;
+}
 #stats .playerMatchStats .summaryStats .berries::before {
   content: "🫐";
+}
+#stats .playerMatchStats .summaryStats .snail {
+  grid-row: 2;
+  grid-column: 2;
+  border-bottom-right-radius: 0.5em;
+  border-top: 0 !important;
+  border-left: 0 !important;
 }
 #stats .playerMatchStats .summaryStats .snail::before {
   content: "🐌";
@@ -262,7 +318,9 @@ body {
             for (const statName of majorStats) {
               const statDisplay = document.createElement("div");
               statDisplay.classList.add(statName);
-              statDisplay.innerText = playerStats[statName];
+              const statValue = document.createElement("span");
+              statValue.innerText = playerStats[statName];
+              statDisplay.appendChild(statValue);
               if (playerStats[statName] == best[statName]) {
                 statDisplay.classList.add("best");
               }
