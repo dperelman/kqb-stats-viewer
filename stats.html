@@ -448,11 +448,11 @@ a {
 
         const totalTime = document.createElement("div");
         totalTime.classList.add("totalDuration");
-        const totalSeconds = stats.games.map(g => g.duration)
-                                        .reduce((a, b) => a + b);
-        totalTime.innerText = String(Math.floor(totalSeconds / 60))
+        const totalDuration = stats.games.map(g => g.duration)
+                                         .reduce((a, b) => a + b);
+        totalTime.innerText = String(Math.floor(totalDuration / 60))
                               .padStart(2, '0') + ":"
-                              + String(Math.floor(totalSeconds % 60))
+                              + String(Math.floor(totalDuration % 60))
                                 .padStart(2, '0');
         maps.appendChild(totalTime);
 
@@ -583,7 +583,17 @@ a {
           },
         ];
 
-        let allMapsDetailTable;
+        const gateDurations = stats.games.map(g => {
+          const res = {};
+          for (let team of teams) {
+            const gateProperty = team == "blue" ? "timeAsBlue" : "timeAsRed";
+            res[team] = g.gateControls.map(a => a[gateProperty])
+                                      .reduce((a, b) => a + b);
+          }
+          res["total"] = res["blue"] + res["gold"];
+          return res;
+        });
+
         for (let i = -1; i < stats.games.length; i++) {
           const detailSection = document.createElement("div");
           detailSection.classList.add("detailSection");
@@ -595,10 +605,11 @@ a {
           detailSection.appendChild(detailTable);
           detailedStats.appendChild(detailSection);
 
-          if (i == -1) {
-            allMapsDetailTable = detailTable;
-            continue;
-          }
+          const duration = i == -1 ? totalDuration : stats.games[i].duration;
+          const gateTotalDuration = i == -1
+            ? gateDurations.map(g => g["total"]).reduce((a, b) => a + b)
+            : gateDurations[i]["total"];
+
           for (const team of teams) {
             const tbody = document.createElement("tbody");
             tbody.classList.add(team);
@@ -609,18 +620,36 @@ a {
                 teamTotals[detail.property] = 0;
               }
             }
-            const gateProperty = team == "blue" ? "timeAsBlue" : "timeAsRed";
-            teamTotals["gates"] = stats.games[i].gateControls
-                                                .map(a => a[gateProperty])
-                                                .reduce((a, b) => a + b)
-                                  / stats.games[i].totalGates;
+            if (i == -1) {
+              teamTotals["gates"] = gateDurations.map(g => g[team])
+                                                 .reduce((a, b) => a + b);
+            } else {
+              teamTotals["gates"] = gateDurations[i][team];
+            }
             teamTotals["workers"] = 0;
 
             for (const nickname of players[team]) {
-              const gameStatsList = stats.games[i].playerStats
-                                    .filter(s => s.nickname == nickname);
-              if (gameStatsList.length == 0) break;
-              const gameStats = gameStatsList[0];
+              let gameStats;
+              if (i == -1) {
+                const allGameStats =
+                        stats.games.flatMap(g => g.playerStats)
+                                   .filter(s => s.nickname == nickname);
+                gameStats = {}
+                for (const detail of detailedStatsInfo) {
+                  if (detail.property) {
+                    gameStats[detail.property] =
+                            allGameStats.map(s => s[detail.property])
+                                        .reduce((a, b) => a + b);
+                  }
+                }
+                gameStats["entityType"] = allGameStats[0].entityType;
+              } else {
+                const gameStatsList = stats.games[i].playerStats
+                                      .filter(s => s.nickname == nickname);
+                if (gameStatsList.length == 0) break;
+                gameStats = gameStatsList[0];
+              }
+
               const playerIsQueen = gameStats.entityType == 3;
               if (!playerIsQueen) teamTotals["workers"]++;
 
@@ -654,10 +683,16 @@ a {
                   const totalSeconds = detail.property
                           ? gameStats[detail.property]
                           : teamTotals["gates"];
-                  const percentage =
-                    Math.round(totalSeconds / stats.games[i].duration * 1000)
-                    / 10;
-                  cell.innerText = percentage + '%';
+                  const denominator = detail.property
+                        ? duration
+                        : gateTotalDuration
+                  const percentage = totalSeconds == 0 || denominator == 0
+                        ? 0
+                        : Math.round(totalSeconds / denominator * 1000) / 10;
+                  cell.innerText = (percentage == 0 
+                                    ? 0
+                                    : percentage.toFixed(1))
+                                   + '%';
                 } else {
                   cell.innerText = detail.property == "totalBerryDeposits"
                         ? gameStats[detail.property]
@@ -683,10 +718,16 @@ a {
                 const totalSeconds = detail.property
                         ? teamTotals[detail.property] / teamTotals["workers"]
                         : teamTotals["gates"];
+                const denominator = detail.property
+                      ? duration
+                      : gateTotalDuration
                 const percentage =
-                  Math.round(totalSeconds / stats.games[i].duration * 1000)
+                  Math.round(totalSeconds / denominator * 1000)
                   / 10;
-                cell.innerText = percentage + '%';
+                cell.innerText = (percentage == 0 
+                                  ? 0
+                                  : percentage.toFixed(1))
+                                 + '%';
               } else {
                 cell.innerText = detail.property == "totalBerryDeposits"
                       ? teamTotals[detail.property]
