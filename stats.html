@@ -366,9 +366,9 @@ body {
 
             const nameDiv = document.createElement("div");
             nameDiv.classList.add("nickname");
-            if (profile == undefined) {
+            if (playerStats.nickname == playerStats.playerId) {
               nameDiv.classList.add("bot");
-            } else if (profile.currentLeague >= 0) {
+            } else if (profile && profile.currentLeague >= 0) {
               nameDiv.classList.add("league-" + profile.currentLeague);
             }
             nameDiv.innerText = nickname;
