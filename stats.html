@@ -7,10 +7,10 @@ body {
   font-family: sans;
   color: white;
 }
-.navigation {
+#navigation {
   text-align: center;
 }
-.navigation button {
+#navigation button {
   font-size: 3em;
 }
 #stats .winner {
@@ -174,6 +174,7 @@ body {
           multiple: false,
         });
         if (!file) return;
+        document.getElementById("dirhelp").style.display = "none";
         document.getElementById("filename").innerText = file.name;
         displayStats(JSON.parse(await (await file.getFile()).text()));
       }
@@ -185,6 +186,8 @@ body {
       async function openDir() {
         dir = await window.showDirectoryPicker();
         if (dir) {
+          document.getElementById("dirhelp").style.display = "none";
+          document.getElementById("navigation").style.display = "";
           seenFiles = new Map();
           previousFilename = undefined;
           nextFilename = undefined;
@@ -350,8 +353,18 @@ body {
   <body>
     <button id="openDir" onclick="openDir()">Open directory</button>
     <button id="open" onclick="openFile()">Open file</button>
-    <br />
-    <div class="navigation">
+    <div id="dirhelp">
+      Default directories:
+      <dl>
+        <dt>Windows</dt>
+        <dd>C:\Users\%USERPROFILE%\AppData\LocalLow\Liquid Bit, LLC\Killer Queen Black\match-stats</dd>
+        <dt>Mac</dt>
+        <dd>?</dd>
+        <dt>Linux</dt>
+        <dd>~/.local/share/Steam/steamapps/compatdata/663670/pfx/drive_c/users/steamuser/AppData/LocalLow/Liquid Bit, LLC/Killer Queen Black/match-stats/</dd>
+      </dl>
+    </div>
+    <div id="navigation" style="display:none;">
       <button id="prev" onclick="loadPrevious()" disabled>&lt; Previous</button>
       <button id="next" onclick="loadNext()" disabled>Next &gt;</button>
       <button id="latest" onclick="loadLatest()" disabled>Jump to Newest ⇉</button>
