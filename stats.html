@@ -60,6 +60,28 @@ body {
   content: "▮▮▮";
 }
 
+.nickname::after {
+  margin-left: 1ex;
+}
+.nickname.bot::after {
+  content: "🤖";
+}
+.nickname.league-0::after {
+  content: "🥉";
+}
+.nickname.league-1::after {
+  content: "🥈";
+}
+.nickname.league-2::after {
+  content: "🥇";
+}
+.nickname.league-3::after {
+  content: "⬜";
+}
+.nickname.league-4::after {
+  content: "🌋✨";
+}
+
 #stats .playerMatchStats {
   text-shadow: 0 0.1em 1px #854aea;
 }
@@ -307,6 +329,10 @@ body {
           for (const nickname of players[team]) {
             const playerStats = stats.playerMatchStats
                                 .filter(p => p.nickname == nickname)[0];
+            const profiles = stats.profiles
+                             .filter(p => p.displayName == nickname);
+            const profile = profiles.length == 0 ? undefined : profiles[0];
+
             const player = document.createElement("div");
             player.classList.add("player");
 
@@ -315,6 +341,11 @@ body {
 
             const nameDiv = document.createElement("div");
             nameDiv.classList.add("nickname");
+            if (profile == undefined) {
+              nameDiv.classList.add("bot");
+            } else if (profile.currentLeague >= 0) {
+              nameDiv.classList.add("league-" + profile.currentLeague);
+            }
             nameDiv.innerText = nickname;
             identification.appendChild(nameDiv);
 
