@@ -102,6 +102,10 @@ body {
   position: relative;
 }
 
+#stats .playerMatchStats .identification .rank {
+  font-size: 0.9em;
+}
+
 #stats .playerMatchStats .identification .avatar {
   position: absolute;
   bottom: 0;
@@ -373,6 +377,21 @@ body {
             }
             nameDiv.innerText = nickname;
             identification.appendChild(nameDiv);
+
+            if (document.getElementById("filename").innerText
+                .startsWith("Ranked-") && profile) {
+              const rank = document.createElement("div");
+              rank.classList.add("rank");
+
+              rank.innerText = profile.currentLeague == -1
+                    ? "placement: " + profile.placementRecord.win + "-"
+                      + profile.placementRecord.loss
+                    : profile.rankedRankingData.roundedRating + " ("
+                      + (profile.rankingAdjustment > 0 ? "+" : "")
+                      + profile.rankingAdjustment + ")";
+
+              identification.appendChild(rank);
+            }
 
             const avatar = document.createElement("div");
             avatar.classList.add("avatar");
