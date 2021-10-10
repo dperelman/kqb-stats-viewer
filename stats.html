@@ -416,6 +416,15 @@ pre.rawJson {
         }
         dir = await window.showDirectoryPicker();
         if (dir) {
+          // From https://developer.mozilla.org/en-US/docs/Web/API/WindowEventHandlers/onbeforeunload
+          // Make reload show a confirmation if a directory is loaded.
+          window.addEventListener('beforeunload', function (e) {
+            // Cancel the event
+            e.preventDefault(); // If you prevent default behavior in Mozilla Firefox prompt will always be shown
+            // Chrome requires returnValue to be set
+            e.returnValue = '';
+          });
+
           document.getElementById("dirhelp").style.display = "none";
           document.getElementById("navigation").style.display = "";
           seenFiles = new Map();
