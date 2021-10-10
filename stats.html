@@ -916,13 +916,41 @@ pre.rawJson {
     <button id="openDir" onclick="openDir()">Open directory</button>
     <button id="open" onclick="openFile()">Open file</button>
     <div id="dirhelp">
-      Default directories:
+      <h1>How to use</h1>
+      <p>
+        (Unfortunately, Google Chrome/Chromium is required;
+        Firefox does not support the "open directory" API.)
+      </p>
+      <p>
+        To view your Killer Queen Black stats, select your
+        <tt>match-stats</tt> directory. Copy the directory below corresponding
+        to your OS, click the "Open directory" button the top-left
+        and paste that in to the directory selection dialog.
+        You will be asked to confirm that you want to grant
+        "view files" permissions on that directory.
+        This page will never modify your stats files
+        or ask for permissions to do, and works entirely locally
+        (i.e., your stats are not sent to a server).
+      </p>
+      <p>
+        After a match completes (e.g., while you're in queue),
+        you can click the "Jump to Newest" button to view the stats
+        for the most recent match. You can also use the "Previous"/"Next"
+        buttons to navigate through your older matches or select a specific
+        stats file with the "Open file" button.
+      </p>
+      <p>
+        You can post feedback on
+        <a href = "https://github.com/dperelman/kqb-stats-viewer">GitHub</a>
+        or contact me at <tt>aebonyne#2493</tt> on Discord.
+      </p>
+      <h2>Default directories:</h2>
       <dl>
         <dt>Windows</dt>
         <dd>%USERPROFILE%\AppData\LocalLow\Liquid Bit, LLC\Killer Queen Black\match-stats</dd>
         <dt>Mac</dt>
         <dd>?</dd>
-        <dt>Linux</dt>
+        <dt>Linux (Steam Play/Proton)</dt>
         <dd>~/.local/share/Steam/steamapps/compatdata/663670/pfx/drive_c/users/steamuser/AppData/LocalLow/Liquid Bit, LLC/Killer Queen Black/match-stats/</dd>
       </dl>
     </div>
