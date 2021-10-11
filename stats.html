@@ -1,972 +1,1047 @@
 <!doctype html>
 <html>
-  <head>
-    <title>(Unofficial) Killer Queen Black JSON stats file viewer</title>
-    <style type="text/css" >
-body {
-  background: #2b0e50;
-  font-family: sans;
-  color: white;
-  margin: 0;
-}
-a {
-  color: gold;
-}
-#github {
-  position: absolute;
-  top: 0;
-  right: 0;
-}
-#navigation {
-  text-align: center;
-}
-#navigation button {
-  font-size: 3em;
-}
-#stats .winner {
-  text-transform: uppercase;
-  background: black;
-  text-align: center;
-  position: sticky;
-  top: 0;
-  z-index: 1;
-}
-#stats .gold-winner {
-  color: #ee914b;
-  text-shadow: 0 0.07em 2px #b84d1f;
-}
-#stats .blue-winner {
-  color: #40c4f2;
-  text-shadow: 0 0.07em 2px #495df1;
-}
-#stats .winner.unknown-winner {
-  color: red;
-}
-#stats .winner::before, #stats .winner::after {
-  margin: 0 1ex;
-  text-shadow: none;
-}
-#stats .winner::before {
-  color: #40c4f2;
-  direction: rtl;
-  unicode-bidi: bidi-override;
-}
-#stats .winner::after {
-  color: #ee914b;
-}
-#stats .winner.blue-won-0::before, #stats .winner.gold-won-0::after {
-  content: "▯▯▯";
-}
-#stats .winner.blue-won-1::before, #stats .winner.gold-won-1::after {
-  content: "▮▯▯";
-}
-#stats .winner.blue-won-2::before, #stats .winner.gold-won-2::after {
-  content: "▮▮▯";
-}
-#stats .winner.blue-won-3::before, #stats .winner.gold-won-3::after {
-  content: "▮▮▮";
-}
 
-#stats .matchStats {
-  display: grid;
-  align-items: center;
-}
-#stats .matchStats .maps {
-  grid-column: 1;
-  position: sticky;
-  top: 0;
-}
-#stats .matchStats .playerMatchStats {
-  grid-column: 2;
-}
-#stats .matchStats .detailedStats {
-  grid-column: 2;
-}
+<head>
+  <title>(Unofficial) Killer Queen Black JSON stats file viewer</title>
+  <style type="text/css">
+    body {
+      background: #2b0e50;
+      font-family: sans;
+      color: white;
+      margin: 0;
+    }
 
-#stats .map {
-  margin: 3em 0;
-}
+    a {
+      color: gold;
+    }
 
-#stats .map::before {
-  margin-right: 0.5ex;
-}
-#stats .map.snail-victory::before {
-  content: "🐌";
-}
-#stats .map.eco-victory::before {
-  content: "🍒";
-}
-#stats .map.mil-victory::before {
-  content: "🗡️";
-}
+    #github {
+      position: absolute;
+      top: 0;
+      right: 0;
+    }
 
-#stats .totalDuration::before {
-  content: "⏲️";
-}
+    #navigation {
+      text-align: center;
+    }
 
-.nickname::after {
-  margin-left: 1ex;
-}
-.nickname.bot::after {
-  content: "🤖";
-}
-.nickname.league-0::after {
-  content: "🥉";
-}
-.nickname.league-1::after {
-  content: "🥈";
-}
-.nickname.league-2::after {
-  content: "🥇";
-}
-.nickname.league-3::after {
-  content: "⬜";
-}
-.nickname.league-4::after {
-  content: "🌋✨";
-}
+    #navigation button {
+      font-size: 3em;
+    }
 
-#stats .playerMatchStats, #stats .totalDuration {
-  text-shadow: 0 0.1em 1px #854aea;
-}
+    #stats .winner {
+      text-transform: uppercase;
+      background: black;
+      text-align: center;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
 
-#stats .playerMatchStats .blue, #stats .playerMatchStats .gold {
-  display: grid;
-  margin: 2em;
-}
+    #stats .gold-winner {
+      color: #ee914b;
+      text-shadow: 0 0.07em 2px #b84d1f;
+    }
 
-#stats .playerMatchStats .player {
-  grid-row: 1;
-  width: 18ex;
-  text-align: center;
-}
+    #stats .blue-winner {
+      color: #40c4f2;
+      text-shadow: 0 0.07em 2px #495df1;
+    }
 
-#stats .playerMatchStats .identification {
-  min-height: 7em;
-  position: relative;
-}
+    #stats .winner.unknown-winner {
+      color: red;
+    }
 
-#stats .playerMatchStats .identification .rank {
-  font-size: 0.9em;
-}
+    #stats .winner::before,
+    #stats .winner::after {
+      margin: 0 1ex;
+      text-shadow: none;
+    }
 
-#stats .playerMatchStats .identification .avatar {
-  position: absolute;
-  bottom: 0;
-  width: 100%;
-  font-size: 2em;
-}
-#stats .playerMatchStats .identification .avatar.queen::before {
-  content: "👑";
-}
-#stats .playerMatchStats .identification .avatar.worker::before {
-  content: "🐝";
-}
-#stats .playerMatchStats .identification .avatar.worker.entitySkin-1::before {
-  content: "💪🐝";
-}
-#stats .playerMatchStats .identification .avatar.worker.entitySkin-2::before {
-  content: "🦓🐝";
-}
-#stats .playerMatchStats .identification .avatar.worker.entitySkin-3::before {
-  content: "💀👕🐝";
-}
-#stats .playerMatchStats .identification .avatar.worker.entitySkin-4::before {
-  content: "🪢🐝";
-}
-#stats .playerMatchStats .identification .avatar.worker.entitySkin-5::before {
-  content: "🏁👕🐝";
-}
+    #stats .winner::before {
+      color: #40c4f2;
+      direction: rtl;
+      unicode-bidi: bidi-override;
+    }
 
-#stats .playerMatchStats .summaryStats {
-  display: inline-grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  place-items: stretch;
-  width: 100%;
-  text-align: left;
-}
+    #stats .winner::after {
+      color: #ee914b;
+    }
 
-#stats .playerMatchStats .summaryStats div {
-  padding: 0.2em;
-}
+    #stats .winner.blue-won-0::before,
+    #stats .winner.gold-won-0::after {
+      content: "▯▯▯";
+    }
 
-#stats .playerMatchStats .blue .summaryStats div {
-  border: 3px solid #3fc1f6;
-}
+    #stats .winner.blue-won-1::before,
+    #stats .winner.gold-won-1::after {
+      content: "▮▯▯";
+    }
 
-#stats .playerMatchStats .gold .summaryStats div {
-  border: 3px solid #efc507;
-}
+    #stats .winner.blue-won-2::before,
+    #stats .winner.gold-won-2::after {
+      content: "▮▮▯";
+    }
 
-#stats .playerMatchStats .summaryStats span {
-  float: right;
-  text-align: right;
-}
+    #stats .winner.blue-won-3::before,
+    #stats .winner.gold-won-3::after {
+      content: "▮▮▮";
+    }
 
-#stats .playerMatchStats .blue {
-  color: #03c9ee;
-}
-#stats .playerMatchStats .blue .summaryStats div {
-  background: #4664dd;
-}
+    #stats .matchStats {
+      display: grid;
+      align-items: center;
+    }
 
-#stats .playerMatchStats .gold {
-  color: #ecc534;
-}
-#stats .playerMatchStats .gold .summaryStats div {
-  background: #c3642b;
-}
+    #stats .matchStats .maps {
+      grid-column: 1;
+      position: sticky;
+      top: 0;
+    }
 
-#stats .playerMatchStats .summaryStats .best {
-  color: white;
-  font-weight: bold;
-}
+    #stats .matchStats .playerMatchStats {
+      grid-column: 2;
+    }
 
-#stats .playerMatchStats .summaryStats .kills {
-  grid-row: 1;
-  grid-column: 1;
-  border-top-left-radius: 0.5em;
-}
-#stats .playerMatchStats .summaryStats .kills::before {
-  content: "🗡️";
-}
-#stats .playerMatchStats .summaryStats .deaths {
-  grid-row: 2;
-  grid-column: 1;
-  border-bottom-left-radius: 0.5em;
-  border-top: 0 !important;
-}
-#stats .playerMatchStats .summaryStats .deaths::before {
-  content: "💀";
-}
-#stats .playerMatchStats .summaryStats .berries {
-  grid-row: 1;
-  grid-column: 2;
-  border-top-right-radius: 0.5em;
-  border-left: 0 !important;
-}
-#stats .playerMatchStats .summaryStats .berries::before {
-  content: "🍒";
-}
-#stats .playerMatchStats .summaryStats .snail {
-  grid-row: 2;
-  grid-column: 2;
-  border-bottom-right-radius: 0.5em;
-  border-top: 0 !important;
-  border-left: 0 !important;
-}
-#stats .playerMatchStats .summaryStats .snail::before {
-  content: "🐌";
-}
+    #stats .matchStats .detailedStats {
+      grid-column: 2;
+    }
 
-#stats .detailSection {
-  text-align: center;
-}
-#stats .detailedStats table {
-  border-collapse: collapse;
-  margin: auto;
-}
-#stats .detailedStats table td {
-  text-align: center;
-  padding: 0.2em;
-  border-top: solid 4px #2b0e50;
-  border-bottom: solid 4px #2b0e50;
-  min-width: 5ex;
-}
-#stats .detailedStats table td.nickname {
-  text-align: left;
-  text-shadow: 0 0.1em 1px #854aea;
-}
-#stats .detailedStats table td.percentage {
-  text-align: right;
-}
-#stats .detailedStats table td.na::before {
-  content: "--";
-}
+    #stats .map {
+      margin: 3em 0;
+    }
 
-#stats .detailedStats table .blank {
-  background: none !important;
-  border: none !important;
-}
-#stats .detailedStats table thead th {
-  background: #6d15b4;
-  vertical-align: bottom;
-  border-top: 0;
-}
-#stats .detailedStats table thead tr.top th,
-#stats .detailedStats table thead tr th.workerDeaths,
-#stats .detailedStats table thead tr th.workerKills,
-#stats .detailedStats table thead tr th.uptime {
-  border-right: solid 4px #2b0e50;
-}
-#stats .detailedStats table thead tr.top th,
-#stats .detailedStats table thead tr th.queenKills,
-#stats .detailedStats table thead tr th.warriorDeaths,
-#stats .detailedStats table thead tr th.berryDunks {
-  border-left: solid 4px #2b0e50;
-}
-#stats .detailedStats table thead tr.bottom th,
-#stats .detailedStats table thead tr th.snail {
-  border-bottom: solid 4px #9a1cf7;
-}
-#stats .detailedStats table thead tr.top th {
-  border-top-left-radius: 0.3em;
-  border-top-right-radius: 0.3em;
-}
-#stats .detailedStats table thead th[colspan] {
-  border-bottom: solid white;
-}
+    #stats .map::before {
+      margin-right: 0.5ex;
+    }
 
-#stats .detailedStats table tbody td.nickname {
-  border-top-left-radius: 0.3em;
-  border-bottom-left-radius: 0.3em;
-}
-#stats .detailedStats table tbody td.uptime {
-  border-top-right-radius: 0.3em;
-  border-bottom-right-radius: 0.3em;
-}
+    #stats .map.snail-victory::before {
+      content: "🐌";
+    }
 
-#stats .detailedStats table tbody.blue td.nickname,
-#stats .detailedStats table tbody.blue td.workerKills,
-#stats .detailedStats table tbody.blue td.workerDeaths,
-#stats .detailedStats table tbody.blue td.berryThrows,
-#stats .detailedStats table tbody.blue td.snail {
-  border-right: solid 3px #1666cd;
-}
-#stats .detailedStats table tbody.blue td.nickname {
-  background: #1b2dac;
-}
-#stats .detailedStats table tbody.blue td {
-  background: #2143b1;
-}
-#stats .detailedStats table tbody.blue td.warriorKills,
-#stats .detailedStats table tbody.blue td.berryThrows,
-#stats .detailedStats table tbody.blue td.uptime {
-  background: #1145cf;
-}
-#stats .detailedStats table tbody.blue td.warriorDeaths {
-  background: #0f2eb4;
-}
-#stats .detailedStats table tbody.blue td.workerDeaths,
-#stats .detailedStats table tbody.blue td.snail {
-  background: #142b9f;
-}
+    #stats .map.eco-victory::before {
+      content: "🍒";
+    }
 
-#stats .detailedStats table tbody.gold td.nickname {
-  background: #953c2f;
-}
-#stats .detailedStats table tbody.gold td.nickname,
-#stats .detailedStats table tbody.gold td.workerKills,
-#stats .detailedStats table tbody.gold td.workerDeaths,
-#stats .detailedStats table tbody.gold td.berryThrows,
-#stats .detailedStats table tbody.gold td.snail {
-  border-right: solid 3px #ae6129;
-}
-#stats .detailedStats table tbody.gold td {
-  background: #a7412f;
-}
-#stats .detailedStats table tbody.gold td.warriorKills,
-#stats .detailedStats table tbody.gold td.berryThrows,
-#stats .detailedStats table tbody.gold td.uptime {
-  background: #ac4f2f;
-}
-#stats .detailedStats table tbody.gold td.warriorDeaths {
-  background: #964029;
-}
-#stats .detailedStats table tbody.gold td.workerDeaths,
-#stats .detailedStats table tbody.gold td.snail {
-  background: #873718;
-}
+    #stats .map.mil-victory::before {
+      content: "🗡️";
+    }
 
-pre.rawJson {
-  overflow-x: scroll;
-}
-    </style>
-    <script language="javascript" >
-      async function openFile() {
-        let file;
-        if (!window.showOpenFilePicker) {
-          alert("Sorry, your web browser is unsupported. Try a recent build of Google Chrome/Chromium.");
-        }
-        [file] = await window.showOpenFilePicker({
-          types: [
-            {
-              description: "JSON KQB stats file",
-              accept: {
-                "application/json": ['.json']
-              }
-            },
-          ],
-          excludeAcceptAllOption: true,
-          multiple: false,
+    #stats .totalDuration::before {
+      content: "⏲️";
+    }
+
+    .nickname::after {
+      margin-left: 1ex;
+    }
+
+    .nickname.bot::after {
+      content: "🤖";
+    }
+
+    .nickname.league-0::after {
+      content: "🥉";
+    }
+
+    .nickname.league-1::after {
+      content: "🥈";
+    }
+
+    .nickname.league-2::after {
+      content: "🥇";
+    }
+
+    .nickname.league-3::after {
+      content: "⬜";
+    }
+
+    .nickname.league-4::after {
+      content: "🌋✨";
+    }
+
+    #stats .playerMatchStats,
+    #stats .totalDuration {
+      text-shadow: 0 0.1em 1px #854aea;
+    }
+
+    #stats .playerMatchStats .blue,
+    #stats .playerMatchStats .gold {
+      display: grid;
+      margin: 2em;
+    }
+
+    #stats .playerMatchStats .player {
+      grid-row: 1;
+      width: 18ex;
+      text-align: center;
+    }
+
+    #stats .playerMatchStats .identification {
+      min-height: 7em;
+      position: relative;
+    }
+
+    #stats .playerMatchStats .identification .rank {
+      font-size: 0.9em;
+    }
+
+    #stats .playerMatchStats .identification .avatar {
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      font-size: 2em;
+    }
+
+    #stats .playerMatchStats .identification .avatar.queen::before {
+      content: "👑";
+    }
+
+    #stats .playerMatchStats .identification .avatar.worker::before {
+      content: "🐝";
+    }
+
+    #stats .playerMatchStats .identification .avatar.worker.entitySkin-1::before {
+      content: "💪🐝";
+    }
+
+    #stats .playerMatchStats .identification .avatar.worker.entitySkin-2::before {
+      content: "🦓🐝";
+    }
+
+    #stats .playerMatchStats .identification .avatar.worker.entitySkin-3::before {
+      content: "💀👕🐝";
+    }
+
+    #stats .playerMatchStats .identification .avatar.worker.entitySkin-4::before {
+      content: "🪢🐝";
+    }
+
+    #stats .playerMatchStats .identification .avatar.worker.entitySkin-5::before {
+      content: "🏁👕🐝";
+    }
+
+    #stats .playerMatchStats .summaryStats {
+      display: inline-grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      place-items: stretch;
+      width: 100%;
+      text-align: left;
+    }
+
+    #stats .playerMatchStats .summaryStats div {
+      padding: 0.2em;
+    }
+
+    #stats .playerMatchStats .blue .summaryStats div {
+      border: 3px solid #3fc1f6;
+    }
+
+    #stats .playerMatchStats .gold .summaryStats div {
+      border: 3px solid #efc507;
+    }
+
+    #stats .playerMatchStats .summaryStats span {
+      float: right;
+      text-align: right;
+    }
+
+    #stats .playerMatchStats .blue {
+      color: #03c9ee;
+    }
+
+    #stats .playerMatchStats .blue .summaryStats div {
+      background: #4664dd;
+    }
+
+    #stats .playerMatchStats .gold {
+      color: #ecc534;
+    }
+
+    #stats .playerMatchStats .gold .summaryStats div {
+      background: #c3642b;
+    }
+
+    #stats .playerMatchStats .summaryStats .best {
+      color: white;
+      font-weight: bold;
+    }
+
+    #stats .playerMatchStats .summaryStats .kills {
+      grid-row: 1;
+      grid-column: 1;
+      border-top-left-radius: 0.5em;
+    }
+
+    #stats .playerMatchStats .summaryStats .kills::before {
+      content: "🗡️";
+    }
+
+    #stats .playerMatchStats .summaryStats .deaths {
+      grid-row: 2;
+      grid-column: 1;
+      border-bottom-left-radius: 0.5em;
+      border-top: 0 !important;
+    }
+
+    #stats .playerMatchStats .summaryStats .deaths::before {
+      content: "💀";
+    }
+
+    #stats .playerMatchStats .summaryStats .berries {
+      grid-row: 1;
+      grid-column: 2;
+      border-top-right-radius: 0.5em;
+      border-left: 0 !important;
+    }
+
+    #stats .playerMatchStats .summaryStats .berries::before {
+      content: "🍒";
+    }
+
+    #stats .playerMatchStats .summaryStats .snail {
+      grid-row: 2;
+      grid-column: 2;
+      border-bottom-right-radius: 0.5em;
+      border-top: 0 !important;
+      border-left: 0 !important;
+    }
+
+    #stats .playerMatchStats .summaryStats .snail::before {
+      content: "🐌";
+    }
+
+    #stats .detailSection {
+      text-align: center;
+    }
+
+    #stats .detailedStats table {
+      border-collapse: collapse;
+      margin: auto;
+    }
+
+    #stats .detailedStats table td {
+      text-align: center;
+      padding: 0.2em;
+      border-top: solid 4px #2b0e50;
+      border-bottom: solid 4px #2b0e50;
+      min-width: 5ex;
+    }
+
+    #stats .detailedStats table td.nickname {
+      text-align: left;
+      text-shadow: 0 0.1em 1px #854aea;
+    }
+
+    #stats .detailedStats table td.percentage {
+      text-align: right;
+    }
+
+    #stats .detailedStats table td.na::before {
+      content: "--";
+    }
+
+    #stats .detailedStats table .blank {
+      background: none !important;
+      border: none !important;
+    }
+
+    #stats .detailedStats table thead th {
+      background: #6d15b4;
+      vertical-align: bottom;
+      border-top: 0;
+    }
+
+    #stats .detailedStats table thead tr.top th,
+    #stats .detailedStats table thead tr th.workerDeaths,
+    #stats .detailedStats table thead tr th.workerKills,
+    #stats .detailedStats table thead tr th.uptime {
+      border-right: solid 4px #2b0e50;
+    }
+
+    #stats .detailedStats table thead tr.top th,
+    #stats .detailedStats table thead tr th.queenKills,
+    #stats .detailedStats table thead tr th.warriorDeaths,
+    #stats .detailedStats table thead tr th.berryDunks {
+      border-left: solid 4px #2b0e50;
+    }
+
+    #stats .detailedStats table thead tr.bottom th,
+    #stats .detailedStats table thead tr th.snail {
+      border-bottom: solid 4px #9a1cf7;
+    }
+
+    #stats .detailedStats table thead tr.top th {
+      border-top-left-radius: 0.3em;
+      border-top-right-radius: 0.3em;
+    }
+
+    #stats .detailedStats table thead th[colspan] {
+      border-bottom: solid white;
+    }
+
+    #stats .detailedStats table tbody td.nickname {
+      border-top-left-radius: 0.3em;
+      border-bottom-left-radius: 0.3em;
+    }
+
+    #stats .detailedStats table tbody td.uptime {
+      border-top-right-radius: 0.3em;
+      border-bottom-right-radius: 0.3em;
+    }
+
+    #stats .detailedStats table tbody.blue td.nickname,
+    #stats .detailedStats table tbody.blue td.workerKills,
+    #stats .detailedStats table tbody.blue td.workerDeaths,
+    #stats .detailedStats table tbody.blue td.berryThrows,
+    #stats .detailedStats table tbody.blue td.snail {
+      border-right: solid 3px #1666cd;
+    }
+
+    #stats .detailedStats table tbody.blue td.nickname {
+      background: #1b2dac;
+    }
+
+    #stats .detailedStats table tbody.blue td {
+      background: #2143b1;
+    }
+
+    #stats .detailedStats table tbody.blue td.warriorKills,
+    #stats .detailedStats table tbody.blue td.berryThrows,
+    #stats .detailedStats table tbody.blue td.uptime {
+      background: #1145cf;
+    }
+
+    #stats .detailedStats table tbody.blue td.warriorDeaths {
+      background: #0f2eb4;
+    }
+
+    #stats .detailedStats table tbody.blue td.workerDeaths,
+    #stats .detailedStats table tbody.blue td.snail {
+      background: #142b9f;
+    }
+
+    #stats .detailedStats table tbody.gold td.nickname {
+      background: #953c2f;
+    }
+
+    #stats .detailedStats table tbody.gold td.nickname,
+    #stats .detailedStats table tbody.gold td.workerKills,
+    #stats .detailedStats table tbody.gold td.workerDeaths,
+    #stats .detailedStats table tbody.gold td.berryThrows,
+    #stats .detailedStats table tbody.gold td.snail {
+      border-right: solid 3px #ae6129;
+    }
+
+    #stats .detailedStats table tbody.gold td {
+      background: #a7412f;
+    }
+
+    #stats .detailedStats table tbody.gold td.warriorKills,
+    #stats .detailedStats table tbody.gold td.berryThrows,
+    #stats .detailedStats table tbody.gold td.uptime {
+      background: #ac4f2f;
+    }
+
+    #stats .detailedStats table tbody.gold td.warriorDeaths {
+      background: #964029;
+    }
+
+    #stats .detailedStats table tbody.gold td.workerDeaths,
+    #stats .detailedStats table tbody.gold td.snail {
+      background: #873718;
+    }
+
+    pre.rawJson {
+      overflow-x: scroll;
+    }
+  </style>
+  <script language="javascript">
+    async function openFile() {
+      let file;
+      if (!window.showOpenFilePicker) {
+        alert("Sorry, your web browser is unsupported. Try a recent build of Google Chrome/Chromium.");
+      }
+      [file] = await window.showOpenFilePicker({
+        types: [
+          {
+            description: "JSON KQB stats file",
+            accept: {
+              "application/json": ['.json']
+            }
+          },
+        ],
+        excludeAcceptAllOption: true,
+        multiple: false,
+      });
+      if (!file) return;
+      document.getElementById("dirhelp").style.display = "none";
+      document.getElementById("filename").innerText = file.name;
+      displayStats(JSON.parse(await (await file.getFile()).text()));
+    }
+    let dir;
+    let seenFiles;
+    let currentFilename;
+    let previousFilename;
+    let nextFilename;
+    async function openDir() {
+      if (!window.showDirectoryPicker) {
+        alert("Sorry, your web browser is unsupported. Try a recent build of Google Chrome/Chromium.");
+      }
+      dir = await window.showDirectoryPicker();
+      if (dir) {
+        // From https://developer.mozilla.org/en-US/docs/Web/API/WindowEventHandlers/onbeforeunload
+        // Make reload show a confirmation if a directory is loaded.
+        window.addEventListener('beforeunload', function (e) {
+          // Cancel the event
+          e.preventDefault(); // If you prevent default behavior in Mozilla Firefox prompt will always be shown
+          // Chrome requires returnValue to be set
+          e.returnValue = '';
         });
-        if (!file) return;
+
         document.getElementById("dirhelp").style.display = "none";
-        document.getElementById("filename").innerText = file.name;
-        displayStats(JSON.parse(await (await file.getFile()).text()));
+        document.getElementById("navigation").style.display = "";
+        seenFiles = new Map();
+        previousFilename = undefined;
+        nextFilename = undefined;
+        currentFilename = undefined;
+        document.getElementById('latest').disabled = false;
+        loadLatest();
       }
-      let dir;
-      let seenFiles;
-      let currentFilename;
-      let previousFilename;
-      let nextFilename;
-      async function openDir() {
-        if (!window.showDirectoryPicker) {
-          alert("Sorry, your web browser is unsupported. Try a recent build of Google Chrome/Chromium.");
-        }
-        dir = await window.showDirectoryPicker();
-        if (dir) {
-          // From https://developer.mozilla.org/en-US/docs/Web/API/WindowEventHandlers/onbeforeunload
-          // Make reload show a confirmation if a directory is loaded.
-          window.addEventListener('beforeunload', function (e) {
-            // Cancel the event
-            e.preventDefault(); // If you prevent default behavior in Mozilla Firefox prompt will always be shown
-            // Chrome requires returnValue to be set
-            e.returnValue = '';
-          });
-
-          document.getElementById("dirhelp").style.display = "none";
-          document.getElementById("navigation").style.display = "";
-          seenFiles = new Map();
-          previousFilename = undefined;
-          nextFilename = undefined;
-          currentFilename = undefined;
-          document.getElementById('latest').disabled = false;
-          loadLatest();
+    }
+    async function refreshDir() {
+      const newFiles = new Map();
+      for await (const entry of dir.values()) {
+        if (!seenFiles.has(entry.name)) {
+          const timestamp = (await entry.getFile()).lastModified;
+          newFiles.set(entry.name, timestamp);
+          seenFiles.set(entry.name, timestamp);
         }
       }
-      async function refreshDir() {
-        const newFiles = new Map();
-        for await (const entry of dir.values()) {
-          if (!seenFiles.has(entry.name)) {
-            const timestamp = (await entry.getFile()).lastModified;
-            newFiles.set(entry.name, timestamp);
-            seenFiles.set(entry.name, timestamp);
-          }
-        }
 
-        return newFiles;
-      }
-      async function loadByFilename(filename) {
-        document.getElementById("filename").innerText = filename;
+      return newFiles;
+    }
+    async function loadByFilename(filename) {
+      document.getElementById("filename").innerText = filename;
 
-        currentFilename = filename;
-        const currentTimestamp = seenFiles.get(filename);
-        const prevFiles = Array.from(seenFiles.entries())
-                          .filter(f => f[1] < currentTimestamp)
-        previousFilename = prevFiles.length == 0
-                ? undefined
-                : prevFiles.reduce((a, b) => a[1]>b[1] ? a : b)[0]
-        document.getElementById("prev").disabled = !previousFilename;
-        const nextFiles = Array.from(seenFiles.entries())
-                          .filter(f => f[1] > currentTimestamp)
-        nextFilename = nextFiles.length == 0
-                ? undefined
-                : nextFiles.reduce((a, b) => a[1]<b[1] ? a : b)[0]
-        document.getElementById("next").disabled = !nextFilename;
+      currentFilename = filename;
+      const currentTimestamp = seenFiles.get(filename);
+      const prevFiles = Array.from(seenFiles.entries())
+        .filter(f => f[1] < currentTimestamp)
+      previousFilename = prevFiles.length == 0
+        ? undefined
+        : prevFiles.reduce((a, b) => a[1] > b[1] ? a : b)[0]
+      document.getElementById("prev").disabled = !previousFilename;
+      const nextFiles = Array.from(seenFiles.entries())
+        .filter(f => f[1] > currentTimestamp)
+      nextFilename = nextFiles.length == 0
+        ? undefined
+        : nextFiles.reduce((a, b) => a[1] < b[1] ? a : b)[0]
+      document.getElementById("next").disabled = !nextFilename;
 
-        const file = await dir.getFileHandle(filename);
-        displayStats(JSON.parse(await (await file.getFile()).text()));
+      const file = await dir.getFileHandle(filename);
+      displayStats(JSON.parse(await (await file.getFile()).text()));
+    }
+    async function loadLatest() {
+      const newFiles = await refreshDir();
+      const files = newFiles.size > 0 ? newFiles : seenFiles;
+      loadByFilename(Array.from(files.entries()).reduce((a, b) => a[1] > b[1] ? a : b)[0]);
+    }
+    async function loadNext() {
+      loadByFilename(nextFilename);
+    }
+    async function loadPrevious() {
+      loadByFilename(previousFilename);
+    }
+
+    function displayStats(stats) {
+      const div = document.getElementById("stats");
+      while (div.firstChild) div.removeChild(div.lastChild);
+
+      const header = document.createElement("h2");
+      header.classList.add("winner");
+      const goldWins = stats.gameWinners.filter(v => v == 1).length;
+      const blueWins = stats.gameWinners.filter(v => v == 2).length;
+      header.classList.add("gold-won-" + goldWins);
+      header.classList.add("blue-won-" + blueWins);
+      if (goldWins == 3) {
+        header.classList.add("gold-winner");
+        header.innerText = "Gold wins";
+      } else if (blueWins == 3) {
+        header.classList.add("blue-winner");
+        header.innerText = "Blue wins";
+      } else {
+        header.classList.add("unknown-winner");
+        header.innerText = "Incomplete match?";
       }
-      async function loadLatest() {
-        const newFiles = await refreshDir();
-        const files = newFiles.size > 0 ? newFiles : seenFiles;
-        loadByFilename(Array.from(files.entries()).reduce((a, b) => a[1]>b[1] ? a : b)[0]);
-      }
-      async function loadNext() {
-        loadByFilename(nextFilename);
-      }
-      async function loadPrevious() {
-        loadByFilename(previousFilename);
+      div.appendChild(header);
+
+      const teams = ["blue", "gold"];
+      const teamMap = { 2: "blue", 1: "gold" };
+      const players = {};
+      for (const team of [2, 1]) {
+        const teamName = teamMap[team];
+        // queens first
+        players[teamName] =
+          stats.playerMatchStats
+            .filter(p => p.team == team && p.entityType == 3)
+            .concat(stats.playerMatchStats
+              .filter(p => p.team == team && p.entityType != 3))
+            .map(p => p.nickname);
       }
 
-      function displayStats(stats) {
-        const div = document.getElementById("stats");
-        while (div.firstChild) div.removeChild(div.lastChild);
+      const majorStats = ["kills", "berries", "deaths", "snail"];
+      const best = {};
+      for (const stat of majorStats) {
+        const f = (stat == "deaths" ? Math.min : Math.max);
+        best[stat] = f(...stats.playerMatchStats.map(p => p[stat]));
+      }
 
-        const header = document.createElement("h2");
-        header.classList.add("winner");
-        const goldWins = stats.gameWinners.filter(v => v == 1).length;
-        const blueWins = stats.gameWinners.filter(v => v == 2).length;
-        header.classList.add("gold-won-" + goldWins);
-        header.classList.add("blue-won-" + blueWins);
-        if (goldWins == 3) {
-          header.classList.add("gold-winner");
-          header.innerText = "Gold wins";
-        } else if (blueWins == 3) {
-          header.classList.add("blue-winner");
-          header.innerText = "Blue wins";
+      const matchStats = document.createElement("div");
+      matchStats.classList.add("matchStats");
+
+      const maps = document.createElement("ol");
+      maps.classList.add("maps");
+
+      const mapNames = {
+        2: "Pod",
+        4: "BQK",
+        7: "Helix",
+        11: "Tally",
+        14: "Spire",
+        15: "Split",
+        17: "Nest",
+        18: "Throne",
+      }
+      const winNames = {
+        1: "Mil",
+        2: "Eco",
+        3: "Snail",
+      }
+
+      for (let i = 0; i < stats.mapPool.length; i++) {
+        const map = document.createElement("li");
+        map.classList.add("map");
+        map.classList.add("map-" + mapNames[stats.mapPool[i]].toLowerCase());
+        if (i in stats.gameWinners) {
+          map.classList.add(teamMap[stats.gameWinners[i]] + "-winner");
+          map.classList.add(winNames[stats.winConditions[i]].toLowerCase()
+            + "-victory");
+          const time = Math.floor(stats.games[i].duration / 60) + ":"
+            + String(Math.floor(stats.games[i].duration % 60))
+              .padStart(2, '0');
+          map.innerText = mapNames[stats.mapPool[i]]
+            + " (" + time + ")";
         } else {
-          header.classList.add("unknown-winner");
-          header.innerText = "Incomplete match?";
+          map.innerText = mapNames[stats.mapPool[i]];
         }
-        div.appendChild(header);
+        maps.appendChild(map);
+      }
 
-        const teams = ["blue", "gold"];
-        const teamMap = {2: "blue", 1: "gold"};
-        const players = {};
-        for (const team of [2, 1]) {
-          const teamName = teamMap[team];
-          // queens first
-          players[teamName] =
-            stats.playerMatchStats
-                 .filter(p => p.team == team && p.entityType == 3)
-                .concat(stats.playerMatchStats
-                 .filter(p => p.team == team && p.entityType != 3))
-                .map(p => p.nickname);
-        }
+      const totalTime = document.createElement("div");
+      totalTime.classList.add("totalDuration");
+      const totalDuration = stats.games.map(g => g.duration)
+        .reduce((a, b) => a + b);
+      totalTime.innerText = String(Math.floor(totalDuration / 60))
+        .padStart(2, '0') + ":"
+        + String(Math.floor(totalDuration % 60))
+          .padStart(2, '0');
+      maps.appendChild(totalTime);
 
-        const majorStats = ["kills", "berries", "deaths", "snail"];
-        const best = {};
-        for (const stat of majorStats) {
-          const f = (stat == "deaths" ? Math.min : Math.max);
-          best[stat] = f(...stats.playerMatchStats.map(p => p[stat]));
-        }
+      matchStats.appendChild(maps);
 
-        const matchStats = document.createElement("div");
-        matchStats.classList.add("matchStats");
+      const playerMatchStats = document.createElement("div");
+      playerMatchStats.classList.add("playerMatchStats");
+      for (const team of teams) {
+        const teamMatchStats = document.createElement("div");
+        teamMatchStats.classList.add(team);
 
-        const maps = document.createElement("ol");
-        maps.classList.add("maps");
+        for (const nickname of players[team]) {
+          const playerStats = stats.playerMatchStats
+            .filter(p => p.nickname == nickname)[0];
+          const profiles = stats.profiles
+            .filter(p => p.displayName == nickname);
+          const profile = profiles.length == 0 ? undefined : profiles[0];
 
-        const mapNames = {
-          2:  "Pod",
-          4:  "BQK",
-          7:  "Helix",
-          11: "Tally",
-          14: "Spire",
-          15: "Split",
-          17: "Nest",
-          18: "Throne",
-        }
-        const winNames ={
-          1: "Mil",
-          2: "Eco",
-          3: "Snail",
-        }
+          const player = document.createElement("div");
+          player.classList.add("player");
 
-        for (let i = 0; i < stats.mapPool.length; i++) {
-          const map = document.createElement("li");
-          map.classList.add("map");
-          map.classList.add("map-" + mapNames[stats.mapPool[i]].toLowerCase());
-          if (i in stats.gameWinners) {
-            map.classList.add(teamMap[stats.gameWinners[i]] + "-winner");
-            map.classList.add(winNames[stats.winConditions[i]].toLowerCase()
-                              + "-victory");
-            const time = Math.floor(stats.games[i].duration / 60) + ":"
-                         + String(Math.floor(stats.games[i].duration % 60))
-                           .padStart(2, '0');
-            map.innerText = mapNames[stats.mapPool[i]]
-                            + " (" + time + ")";
-          } else {
-            map.innerText = mapNames[stats.mapPool[i]];
+          const identification = document.createElement("div");
+          identification.classList.add("identification");
+
+          const nameDiv = document.createElement("div");
+          nameDiv.classList.add("nickname");
+          if (playerStats.nickname == playerStats.playerId) {
+            nameDiv.classList.add("bot");
+          } else if (profile && profile.currentLeague >= 0) {
+            nameDiv.classList.add("league-" + profile.currentLeague);
           }
-          maps.appendChild(map);
+          nameDiv.innerText = nickname;
+          identification.appendChild(nameDiv);
+
+          if (document.getElementById("filename").innerText
+            .startsWith("Ranked-") && profile) {
+            const rank = document.createElement("div");
+            rank.classList.add("rank");
+
+            rank.innerText = profile.currentLeague == -1
+              ? "placement: " + profile.placementRecord.win + "-"
+              + profile.placementRecord.loss
+              : profile.rankedRankingData.roundedRating + " ("
+              + (profile.rankingAdjustment > 0 ? "+" : "")
+              + profile.rankingAdjustment + ")";
+
+            identification.appendChild(rank);
+          }
+
+          const avatar = document.createElement("div");
+          avatar.classList.add("avatar");
+          avatar.classList.add("entitySkin-" + playerStats.entitySkin);
+          avatar.classList.add("entityType-" + playerStats.entityType);
+          avatar.classList.add(playerStats.entityType == 3
+            ? "queen"
+            : "worker");
+          identification.appendChild(avatar);
+          player.appendChild(identification);
+
+          const summaryStats = document.createElement("div");
+          summaryStats.classList.add("summaryStats");
+          for (const statName of majorStats) {
+            const statDisplay = document.createElement("div");
+            statDisplay.classList.add(statName);
+            const statValue = document.createElement("span");
+            statValue.innerText = playerStats[statName];
+            statDisplay.appendChild(statValue);
+            if (playerStats[statName] == best[statName]) {
+              statDisplay.classList.add("best");
+            }
+            summaryStats.appendChild(statDisplay);
+          }
+          player.appendChild(summaryStats);
+
+          teamMatchStats.appendChild(player);
         }
 
-        const totalTime = document.createElement("div");
-        totalTime.classList.add("totalDuration");
-        const totalDuration = stats.games.map(g => g.duration)
-                                         .reduce((a, b) => a + b);
-        totalTime.innerText = String(Math.floor(totalDuration / 60))
-                              .padStart(2, '0') + ":"
-                              + String(Math.floor(totalDuration % 60))
-                                .padStart(2, '0');
-        maps.appendChild(totalTime);
+        playerMatchStats.appendChild(teamMatchStats);
+      }
+      matchStats.appendChild(playerMatchStats);
 
-        matchStats.appendChild(maps);
+      const detailedStats = document.createElement("div");
+      detailedStats.classList.add("detailedStats");
 
-        const playerMatchStats = document.createElement("div");
-        playerMatchStats.classList.add("playerMatchStats");
+      detailedStatsInfo = [
+        {
+          class: "queenKills",
+          property: "totalQueenKillCount",
+          queen: true,
+        },
+        {
+          class: "warriorKills",
+          property: "totalWarriorKillCount",
+          queen: true,
+        },
+        {
+          class: "workerKills",
+          property: "totalWorkerKillCount",
+          queen: true,
+        },
+        {
+          class: "warriorDeaths",
+          property: "warriorAndQueenDeathCount",
+          queen: true,
+        },
+        {
+          class: "workerDeaths",
+          property: "workerDeathCount",
+          queen: false,
+        },
+        {
+          class: "berryDunks",
+          property: "totalBerryDeposits",
+          queen: false,
+          omitForQueen: true,
+        },
+        {
+          class: "berryThrows",
+          property: "totalBerryThrowIns",
+          queen: 2,
+        },
+        {
+          class: "snail",
+          property: "totalSnailDistance",
+          queen: false,
+        },
+        {
+          class: "gates",
+          property: undefined,
+          queen: true,
+          percentage: true,
+        },
+        {
+          class: "uptime",
+          property: "timeSpentAsWarriorSeconds",
+          queen: false,
+          percentage: true,
+        },
+      ];
+
+      const gateDurations = stats.games.map(g => {
+        const res = {};
+        for (let team of teams) {
+          const gateProperty = team == "blue" ? "timeAsBlue" : "timeAsRed";
+          res[team] = g.gateControls.map(a => a[gateProperty])
+            .reduce((a, b) => a + b);
+        }
+        res["total"] = res["blue"] + res["gold"];
+        return res;
+      });
+
+      for (let i = -1; i < stats.games.length; i++) {
+        const detailSection = document.createElement("div");
+        detailSection.classList.add("detailSection");
+        const detailTitle = document.createElement("h3");
+        detailTitle.innerText = i == -1 ? "Entire set" : "Map " + (i + 1);
+        detailSection.appendChild(detailTitle);
+        const detailTable = document.querySelector("#detailedStats")
+          .content.cloneNode(true).querySelector("table");
+        detailSection.appendChild(detailTable);
+        detailedStats.appendChild(detailSection);
+
+        const duration = i == -1 ? totalDuration : stats.games[i].duration;
+        const gateTotalDuration = i == -1
+          ? gateDurations.map(g => g["total"]).reduce((a, b) => a + b)
+          : gateDurations[i]["total"];
+
         for (const team of teams) {
-          const teamMatchStats = document.createElement("div");
-          teamMatchStats.classList.add(team);
+          const tbody = document.createElement("tbody");
+          tbody.classList.add(team);
+
+          const teamTotals = {};
+          for (let detail of detailedStatsInfo) {
+            if (detail.property) {
+              teamTotals[detail.property] = 0;
+            }
+          }
+          if (i == -1) {
+            teamTotals["gates"] = gateDurations.map(g => g[team])
+              .reduce((a, b) => a + b);
+          } else {
+            teamTotals["gates"] = gateDurations[i][team];
+          }
+          teamTotals["workers"] = 0;
 
           for (const nickname of players[team]) {
-            const playerStats = stats.playerMatchStats
-                                .filter(p => p.nickname == nickname)[0];
-            const profiles = stats.profiles
-                             .filter(p => p.displayName == nickname);
-            const profile = profiles.length == 0 ? undefined : profiles[0];
-
-            const player = document.createElement("div");
-            player.classList.add("player");
-
-            const identification = document.createElement("div");
-            identification.classList.add("identification");
-
-            const nameDiv = document.createElement("div");
-            nameDiv.classList.add("nickname");
-            if (playerStats.nickname == playerStats.playerId) {
-              nameDiv.classList.add("bot");
-            } else if (profile && profile.currentLeague >= 0) {
-              nameDiv.classList.add("league-" + profile.currentLeague);
-            }
-            nameDiv.innerText = nickname;
-            identification.appendChild(nameDiv);
-
-            if (document.getElementById("filename").innerText
-                .startsWith("Ranked-") && profile) {
-              const rank = document.createElement("div");
-              rank.classList.add("rank");
-
-              rank.innerText = profile.currentLeague == -1
-                    ? "placement: " + profile.placementRecord.win + "-"
-                      + profile.placementRecord.loss
-                    : profile.rankedRankingData.roundedRating + " ("
-                      + (profile.rankingAdjustment > 0 ? "+" : "")
-                      + profile.rankingAdjustment + ")";
-
-              identification.appendChild(rank);
-            }
-
-            const avatar = document.createElement("div");
-            avatar.classList.add("avatar");
-            avatar.classList.add("entitySkin-" + playerStats.entitySkin);
-            avatar.classList.add("entityType-" + playerStats.entityType);
-            avatar.classList.add(playerStats.entityType == 3
-                                  ? "queen"
-                                  : "worker");
-            identification.appendChild(avatar);
-            player.appendChild(identification);
-
-            const summaryStats = document.createElement("div");
-            summaryStats.classList.add("summaryStats");
-            for (const statName of majorStats) {
-              const statDisplay = document.createElement("div");
-              statDisplay.classList.add(statName);
-              const statValue = document.createElement("span");
-              statValue.innerText = playerStats[statName];
-              statDisplay.appendChild(statValue);
-              if (playerStats[statName] == best[statName]) {
-                statDisplay.classList.add("best");
+            let gameStats;
+            if (i == -1) {
+              const allGameStats =
+                stats.games.flatMap(g => g.playerStats)
+                  .filter(s => s.nickname == nickname);
+              gameStats = {}
+              for (const detail of detailedStatsInfo) {
+                if (detail.property) {
+                  gameStats[detail.property] =
+                    allGameStats.map(s => s[detail.property])
+                      .reduce((a, b) => a + b);
+                }
               }
-              summaryStats.appendChild(statDisplay);
+              gameStats["entityType"] = allGameStats[0].entityType;
+            } else {
+              const gameStatsList = stats.games[i].playerStats
+                .filter(s => s.nickname == nickname);
+              if (gameStatsList.length == 0) break;
+              gameStats = gameStatsList[0];
             }
-            player.appendChild(summaryStats);
 
-            teamMatchStats.appendChild(player);
-          }
+            const playerIsQueen = gameStats.entityType == 3;
+            if (!playerIsQueen) teamTotals["workers"]++;
 
-          playerMatchStats.appendChild(teamMatchStats);
-        }
-        matchStats.appendChild(playerMatchStats);
+            const row = document.createElement("tr");
+            row.classList.add("playerRow");
 
-        const detailedStats = document.createElement("div");
-        detailedStats.classList.add("detailedStats");
+            const nameCell = document.createElement("td");
+            nameCell.classList.add("nickname");
+            nameCell.innerText = nickname;
+            row.appendChild(nameCell);
 
-        detailedStatsInfo = [
-          {
-            class: "queenKills",
-            property: "totalQueenKillCount",
-            queen: true,
-          },
-          {
-            class: "warriorKills",
-            property: "totalWarriorKillCount",
-            queen: true,
-          },
-          {
-            class: "workerKills",
-            property: "totalWorkerKillCount",
-            queen: true,
-          },
-          {
-            class: "warriorDeaths",
-            property: "warriorAndQueenDeathCount",
-            queen: true,
-          },
-          {
-            class: "workerDeaths",
-            property: "workerDeathCount",
-            queen: false,
-          },
-          {
-            class: "berryDunks",
-            property: "totalBerryDeposits",
-            queen: false,
-            omitForQueen: true,
-          },
-          {
-            class: "berryThrows",
-            property: "totalBerryThrowIns",
-            queen: 2,
-          },
-          {
-            class: "snail",
-            property: "totalSnailDistance",
-            queen: false,
-          },
-          {
-            class: "gates",
-            property: undefined,
-            queen: true,
-            percentage: true,
-          },
-          {
-            class: "uptime",
-            property: "timeSpentAsWarriorSeconds",
-            queen: false,
-            percentage: true,
-          },
-        ];
-
-        const gateDurations = stats.games.map(g => {
-          const res = {};
-          for (let team of teams) {
-            const gateProperty = team == "blue" ? "timeAsBlue" : "timeAsRed";
-            res[team] = g.gateControls.map(a => a[gateProperty])
-                                      .reduce((a, b) => a + b);
-          }
-          res["total"] = res["blue"] + res["gold"];
-          return res;
-        });
-
-        for (let i = -1; i < stats.games.length; i++) {
-          const detailSection = document.createElement("div");
-          detailSection.classList.add("detailSection");
-          const detailTitle = document.createElement("h3");
-          detailTitle.innerText = i == -1 ? "Entire set" : "Map " + (i+1);
-          detailSection.appendChild(detailTitle);
-          const detailTable = document.querySelector("#detailedStats")
-                              .content.cloneNode(true).querySelector("table");
-          detailSection.appendChild(detailTable);
-          detailedStats.appendChild(detailSection);
-
-          const duration = i == -1 ? totalDuration : stats.games[i].duration;
-          const gateTotalDuration = i == -1
-            ? gateDurations.map(g => g["total"]).reduce((a, b) => a + b)
-            : gateDurations[i]["total"];
-
-          for (const team of teams) {
-            const tbody = document.createElement("tbody");
-            tbody.classList.add(team);
-
-            const teamTotals = {};
             for (let detail of detailedStatsInfo) {
               if (detail.property) {
-                teamTotals[detail.property] = 0;
-              }
-            }
-            if (i == -1) {
-              teamTotals["gates"] = gateDurations.map(g => g[team])
-                                                 .reduce((a, b) => a + b);
-            } else {
-              teamTotals["gates"] = gateDurations[i][team];
-            }
-            teamTotals["workers"] = 0;
-
-            for (const nickname of players[team]) {
-              let gameStats;
-              if (i == -1) {
-                const allGameStats =
-                        stats.games.flatMap(g => g.playerStats)
-                                   .filter(s => s.nickname == nickname);
-                gameStats = {}
-                for (const detail of detailedStatsInfo) {
-                  if (detail.property) {
-                    gameStats[detail.property] =
-                            allGameStats.map(s => s[detail.property])
-                                        .reduce((a, b) => a + b);
-                  }
-                }
-                gameStats["entityType"] = allGameStats[0].entityType;
-              } else {
-                const gameStatsList = stats.games[i].playerStats
-                                      .filter(s => s.nickname == nickname);
-                if (gameStatsList.length == 0) break;
-                gameStats = gameStatsList[0];
+                teamTotals[detail.property] += gameStats[detail.property];
               }
 
-              const playerIsQueen = gameStats.entityType == 3;
-              if (!playerIsQueen) teamTotals["workers"]++;
-
-              const row = document.createElement("tr");
-              row.classList.add("playerRow");
-
-              const nameCell = document.createElement("td");
-              nameCell.classList.add("nickname");
-              nameCell.innerText = nickname;
-              row.appendChild(nameCell);
-
-              for (let detail of detailedStatsInfo) {
-                if (detail.property) {
-                  teamTotals[detail.property] += gameStats[detail.property];
-                }
-
-                const cell = document.createElement("td");
-                cell.classList.add(detail.class);
-                if (!(playerIsQueen && "omitForQueen" in detail)) {
-                  row.appendChild(cell);
-                }
-                if (detail.percentage) cell.classList.add("percentage");
-                if (!detail.queen && playerIsQueen
-                    || !detail.property && !playerIsQueen) {
-                  cell.classList.add("na");
-                  continue;
-                }
-                if (playerIsQueen && detail.queen && detail.queen !== true) {
-                  cell.colSpan = detail.queen;
-                }
-                if (detail.percentage) {
-                  const totalSeconds = detail.property
-                          ? gameStats[detail.property]
-                          : teamTotals["gates"];
-                  const denominator = detail.property
-                        ? duration
-                        : gateTotalDuration
-                  const percentage = totalSeconds == 0 || denominator == 0
-                        ? 0
-                        : Math.round(totalSeconds / denominator * 1000) / 10;
-                  cell.innerText = (percentage == 0
-                                    ? 0
-                                    : percentage.toFixed(1))
-                                   + '%';
-                } else {
-                  cell.innerText = detail.property == "totalBerryDeposits"
-                        ? gameStats[detail.property]
-                            - gameStats["totalBerryThrowIns"]
-                        : gameStats[detail.property];
-                }
-              }
-
-              tbody.appendChild(row);
-            }
-            const totalRow = document.createElement("tr");
-            totalRow.classList.add("total");
-
-            const blank = document.createElement("td");
-            blank.classList.add("blank");
-            totalRow.appendChild(blank);
-            for (let detail of detailedStatsInfo) {
               const cell = document.createElement("td");
               cell.classList.add(detail.class);
-              totalRow.appendChild(cell);
-
+              if (!(playerIsQueen && "omitForQueen" in detail)) {
+                row.appendChild(cell);
+              }
+              if (detail.percentage) cell.classList.add("percentage");
+              if (!detail.queen && playerIsQueen
+                || !detail.property && !playerIsQueen) {
+                cell.classList.add("na");
+                continue;
+              }
+              if (playerIsQueen && detail.queen && detail.queen !== true) {
+                cell.colSpan = detail.queen;
+              }
               if (detail.percentage) {
-                cell.classList.add("percentage");
                 const totalSeconds = detail.property
-                      ? (teamTotals["workers"] == 0
-                        ? 0
-                        : teamTotals[detail.property] / teamTotals["workers"])
-                      : teamTotals["gates"];
+                  ? gameStats[detail.property]
+                  : teamTotals["gates"];
                 const denominator = detail.property
-                      ? duration
-                      : gateTotalDuration
+                  ? duration
+                  : gateTotalDuration
                 const percentage = totalSeconds == 0 || denominator == 0
-                      ? 0
-                      : Math.round(totalSeconds / denominator * 1000) / 10;
+                  ? 0
+                  : Math.round(totalSeconds / denominator * 1000) / 10;
                 cell.innerText = (percentage == 0
-                                  ? 0
-                                  : percentage.toFixed(1))
-                                 + '%';
+                  ? 0
+                  : percentage.toFixed(1))
+                  + '%';
               } else {
                 cell.innerText = detail.property == "totalBerryDeposits"
-                      ? teamTotals[detail.property]
-                          - teamTotals["totalBerryThrowIns"]
-                      : teamTotals[detail.property];
+                  ? gameStats[detail.property]
+                  - gameStats["totalBerryThrowIns"]
+                  : gameStats[detail.property];
               }
             }
-            tbody.appendChild(totalRow);
 
-            detailTable.appendChild(tbody);
+            tbody.appendChild(row);
           }
+          const totalRow = document.createElement("tr");
+          totalRow.classList.add("total");
+
+          const blank = document.createElement("td");
+          blank.classList.add("blank");
+          totalRow.appendChild(blank);
+          for (let detail of detailedStatsInfo) {
+            const cell = document.createElement("td");
+            cell.classList.add(detail.class);
+            totalRow.appendChild(cell);
+
+            if (detail.percentage) {
+              cell.classList.add("percentage");
+              const totalSeconds = detail.property
+                ? (teamTotals["workers"] == 0
+                  ? 0
+                  : teamTotals[detail.property] / teamTotals["workers"])
+                : teamTotals["gates"];
+              const denominator = detail.property
+                ? duration
+                : gateTotalDuration
+              const percentage = totalSeconds == 0 || denominator == 0
+                ? 0
+                : Math.round(totalSeconds / denominator * 1000) / 10;
+              cell.innerText = (percentage == 0
+                ? 0
+                : percentage.toFixed(1))
+                + '%';
+            } else {
+              cell.innerText = detail.property == "totalBerryDeposits"
+                ? teamTotals[detail.property]
+                - teamTotals["totalBerryThrowIns"]
+                : teamTotals[detail.property];
+            }
+          }
+          tbody.appendChild(totalRow);
+
+          detailTable.appendChild(tbody);
         }
-
-        matchStats.appendChild(detailedStats);
-        div.appendChild(matchStats);
-
-        const jsonDisplay = document.createElement("pre");
-        jsonDisplay.classList.add("rawJson");
-        jsonDisplay.innerText = JSON.stringify(stats, null, 2);
-        div.appendChild(jsonDisplay);
       }
-    </script>
-    <template id="detailedStats">
-      <table>
-        <thead>
-          <tr class="top">
-            <th class="blank"></th>
-            <th colspan="3" class="kills">🗡️</th>
-            <th colspan="2" class="deaths">💀</th>
-            <th colspan="2" class="berries">🍒</th>
-            <th rowspan="2" class="snail">🐌</th>
-            <th colspan="2" class="uptime">⏲️</th>
-          </tr>
-          <tr class="bottom">
-            <th class="blank"></th>
-            <th class="queenKills">👑</th>
-            <th class="warriorKills">⚔️</th>
-            <th class="workerKills">🐝</th>
-            <th class="warriorDeaths">👑/⚔️</th>
-            <th class="workerDeaths">🐝</th>
-            <th class="berryDunks" title="dunked berries">🏀</th>
-            <th class="berryThrows" title="thrown berries">↷</th>
-            <th class="gates" title="gate control">⛩️</th>
-            <th class="uptime" title="warrior uptime">⚔️</th>
-          </tr>
-        </thead>
-      </table>
-    </template>
-  </head>
-  <body>
-    <a id="github" href="https://github.com/dperelman/kqb-stats-viewer">
-      Report issues or submit pull requests on GitHub
-    </a>
-    <button id="openDir" onclick="openDir()">Open directory</button>
-    <button id="open" onclick="openFile()">Open file</button>
-    <div id="dirhelp">
-      <h1>How to use</h1>
-      <p>
-        (Unfortunately, Google Chrome/Chromium is required;
-        Firefox does not support the "open directory" API.)
-      </p>
-      <p>
-        To view your Killer Queen Black stats, select your
-        <tt>match-stats</tt> directory. Copy the directory below corresponding
-        to your OS, click the "Open directory" button the top-left
-        and paste that in to the directory selection dialog.
-        You will be asked to confirm that you want to grant
-        "view files" permissions on that directory.
-        This page will never modify your stats files
-        or ask for permissions to do, and works entirely locally
-        (i.e., your stats are not sent to a server).
-      </p>
-      <p>
-        After a match completes (e.g., while you're in queue),
-        you can click the "Jump to Newest" button to view the stats
-        for the most recent match. You can also use the "Previous"/"Next"
-        buttons to navigate through your older matches or select a specific
-        stats file with the "Open file" button.
-      </p>
-      <p>
-        You can post feedback on
-        <a href = "https://github.com/dperelman/kqb-stats-viewer">GitHub</a>
-        or contact me at <tt>aebonyne#2493</tt> on Discord.
-      </p>
-      <h2>Default directories:</h2>
-      <dl>
-        <dt>Windows</dt>
-        <dd>%USERPROFILE%\AppData\LocalLow\Liquid Bit, LLC\Killer Queen Black\match-stats</dd>
-        <dt>Mac</dt>
-        <dd>?</dd>
-        <dt>Linux (Steam Play/Proton)</dt>
-        <dd>~/.local/share/Steam/steamapps/compatdata/663670/pfx/drive_c/users/steamuser/AppData/LocalLow/Liquid Bit, LLC/Killer Queen Black/match-stats/</dd>
-      </dl>
-    </div>
-    <div id="navigation" style="display:none;">
-      <button id="prev" onclick="loadPrevious()" disabled>&lt; Previous</button>
-      <button id="next" onclick="loadNext()" disabled>Next &gt;</button>
-      <button id="latest" onclick="loadLatest()" disabled>Jump to Newest ⇉</button>
-    </div>
-    <h1 id="matchName"><span id="filename"></span></h1>
-    <div id="stats"></div>
-    <footer>
-      This is an unofficial tool for viewing the JSON stats files generated
-      at the end of every match by the Windows version of
-      <a href = "http://www.killerqueenblack.com/">Killer Queen Black</a>.
-    </footer>
 
-  </body>
+      matchStats.appendChild(detailedStats);
+      div.appendChild(matchStats);
+
+      const jsonDisplay = document.createElement("pre");
+      jsonDisplay.classList.add("rawJson");
+      jsonDisplay.innerText = JSON.stringify(stats, null, 2);
+      div.appendChild(jsonDisplay);
+    }
+  </script>
+  <template id="detailedStats">
+    <table>
+      <thead>
+        <tr class="top">
+          <th class="blank"></th>
+          <th colspan="3" class="kills">🗡️</th>
+          <th colspan="2" class="deaths">💀</th>
+          <th colspan="2" class="berries">🍒</th>
+          <th rowspan="2" class="snail">🐌</th>
+          <th colspan="2" class="uptime">⏲️</th>
+        </tr>
+        <tr class="bottom">
+          <th class="blank"></th>
+          <th class="queenKills">👑</th>
+          <th class="warriorKills">⚔️</th>
+          <th class="workerKills">🐝</th>
+          <th class="warriorDeaths">👑/⚔️</th>
+          <th class="workerDeaths">🐝</th>
+          <th class="berryDunks" title="dunked berries">🏀</th>
+          <th class="berryThrows" title="thrown berries">↷</th>
+          <th class="gates" title="gate control">⛩️</th>
+          <th class="uptime" title="warrior uptime">⚔️</th>
+        </tr>
+      </thead>
+    </table>
+  </template>
+</head>
+
+<body>
+  <a id="github" href="https://github.com/dperelman/kqb-stats-viewer">
+    Report issues or submit pull requests on GitHub
+  </a>
+  <button id="openDir" onclick="openDir()">Open directory</button>
+  <button id="open" onclick="openFile()">Open file</button>
+  <div id="dirhelp">
+    <h1>How to use</h1>
+    <p>
+      (Unfortunately, Google Chrome/Chromium is required;
+      Firefox does not support the "open directory" API.)
+    </p>
+    <p>
+      To view your Killer Queen Black stats, select your
+      <tt>match-stats</tt> directory. Copy the directory below corresponding
+      to your OS, click the "Open directory" button the top-left
+      and paste that in to the directory selection dialog.
+      You will be asked to confirm that you want to grant
+      "view files" permissions on that directory.
+      This page will never modify your stats files
+      or ask for permissions to do, and works entirely locally
+      (i.e., your stats are not sent to a server).
+    </p>
+    <p>
+      After a match completes (e.g., while you're in queue),
+      you can click the "Jump to Newest" button to view the stats
+      for the most recent match. You can also use the "Previous"/"Next"
+      buttons to navigate through your older matches or select a specific
+      stats file with the "Open file" button.
+    </p>
+    <p>
+      You can post feedback on
+      <a href="https://github.com/dperelman/kqb-stats-viewer">GitHub</a>
+      or contact me at <tt>aebonyne#2493</tt> on Discord.
+    </p>
+    <h2>Default directories:</h2>
+    <dl>
+      <dt>Windows</dt>
+      <dd>%USERPROFILE%\AppData\LocalLow\Liquid Bit, LLC\Killer Queen Black\match-stats</dd>
+      <dt>Mac</dt>
+      <dd>?</dd>
+      <dt>Linux (Steam Play/Proton)</dt>
+      <dd>~/.local/share/Steam/steamapps/compatdata/663670/pfx/drive_c/users/steamuser/AppData/LocalLow/Liquid Bit,
+        LLC/Killer Queen Black/match-stats/</dd>
+    </dl>
+  </div>
+  <div id="navigation" style="display:none;">
+    <button id="prev" onclick="loadPrevious()" disabled>&lt; Previous</button>
+    <button id="next" onclick="loadNext()" disabled>Next &gt;</button>
+    <button id="latest" onclick="loadLatest()" disabled>Jump to Newest ⇉</button>
+  </div>
+  <h1 id="matchName"><span id="filename"></span></h1>
+  <div id="stats"></div>
+  <footer>
+    This is an unofficial tool for viewing the JSON stats files generated
+    at the end of every match by the Windows version of
+    <a href="http://www.killerqueenblack.com/">Killer Queen Black</a>.
+  </footer>
+
+</body>
+
 </html>
-
