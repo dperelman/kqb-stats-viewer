@@ -19,29 +19,55 @@
     <title>(Unofficial) Killer Queen Black JSON stats file viewer</title>
     <style type="text/css">
         body {
-            background: indigo;
+            background: #2b0e50;
             font-family: 'Asap', sans-serif, 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
             color: lightgrey;
             font-size: 1vw;
             margin: 0;
         }
         
-        a {
-            color: gold;
+        #github {
+            padding: 0%;
+            display: block;
+            float: right;
+            width: 25%;
         }
         
-        #github {
-            position: absolute;
-            top: 0;
-            right: 0;
+        .button-group {
+            display: block;
+            float: left;
+            width: 100%;
+            margin: 0;
+        }
+        
+        .dir-button-group {
+            margin: 0;
+            width: 75%;
+            float: left;
+        }
+        
+        .button {
+            display: block;
+            float: left;
+            background-color: lavender;
+            color: darkmagenta;
+            font-size: 1.5em;
+            padding: 0.5em 0;
+            border-radius: 0.15vw;
+            border: 0;
+            width: 15vw;
+            margin: 1em;
+        }
+        
+        .button:disabled {
+            background-color: silver;
+            color: gray;
+            box-shadow: none;
         }
         
         #navigation {
             text-align: center;
-        }
-        
-        #navigation button {
-            font-size: 3em;
+            float: left;
         }
         
         #stats .winner {
@@ -85,22 +111,26 @@
         
         #stats .winner.blue-won-0::before,
         #stats .winner.gold-won-0::after {
-            content: "▯▯▯";
+            content: "\25B1\25B1\25B1";
         }
         
         #stats .winner.blue-won-1::before,
         #stats .winner.gold-won-1::after {
-            content: "▮▯▯";
+            content: "\25B0\25B1\25B1";
         }
         
         #stats .winner.blue-won-2::before,
         #stats .winner.gold-won-2::after {
-            content: "▮▮▯";
+            content: "\25B0\25B0\25B1";
         }
         
         #stats .winner.blue-won-3::before,
         #stats .winner.gold-won-3::after {
-            content: "▮▮▮";
+            content: "\25B0\25B0\25B0";
+        }
+        
+        .rotated {
+            transform: rotate(90deg);
         }
         
         #stats .matchStats {
@@ -228,7 +258,7 @@
         }
         
         #stats .playerMatchStats .identification .avatar.worker.entitySkin-4::before {
-            content: "🪢🐝";
+            content: "\2a33🐝";
         }
         
         #stats .playerMatchStats .identification .avatar.worker.entitySkin-5::before {
@@ -518,9 +548,11 @@
                 nextFilename = undefined;
                 currentFilename = undefined;
                 document.getElementById('latest').disabled = false;
+                document.getElementById('oldest').disabled = false;
                 loadLatest();
             }
         }
+
         async function refreshDir() {
             const newFiles = new Map();
             for await (const entry of dir.values()) {
@@ -533,6 +565,7 @@
 
             return newFiles;
         }
+
         async function loadByFilename(filename) {
             document.getElementById("filename").innerText = filename;
 
@@ -554,14 +587,21 @@
             const file = await dir.getFileHandle(filename);
             displayStats(JSON.parse(await (await file.getFile()).text()));
         }
+
         async function loadLatest() {
             const newFiles = await refreshDir();
             const files = newFiles.size > 0 ? newFiles : seenFiles;
             loadByFilename(Array.from(files.entries()).reduce((a, b) => a[1] > b[1] ? a : b)[0]);
         }
+
+        async function loadOldest() {
+            loadByFilename(Array.from(seenFiles.entries()).reduce((a, b) => a[1] < b[1] ? a : b)[0]);
+        }
+
         async function loadNext() {
             loadByFilename(nextFilename);
         }
+
         async function loadPrevious() {
             loadByFilename(previousFilename);
         }
@@ -837,15 +877,11 @@
                     for (const nickname of players[team]) {
                         let gameStats;
                         if (i == -1) {
-                            const allGameStats =
-                                stats.games.flatMap(g => g.playerStats)
-                                .filter(s => s.nickname == nickname);
+                            const allGameStats = stats.games.flatMap(g => g.playerStats).filter(s => s.nickname == nickname);
                             gameStats = {}
                             for (const detail of detailedStatsInfo) {
                                 if (detail.property) {
-                                    gameStats[detail.property] =
-                                        allGameStats.map(s => s[detail.property])
-                                        .reduce((a, b) => a + b);
+                                    gameStats[detail.property] = allGameStats.map(s => s[detail.property]).reduce((a, b) => a + b);
                                 }
                             }
                             gameStats["entityType"] = allGameStats[0].entityType;
@@ -961,39 +997,69 @@
         }
     </script>
     <template id="detailedStats">
-    <table>
-      <thead>
-        <tr class="top">
-          <th class="blank"></th>
-          <th colspan="3" class="kills">🗡️</th>
-          <th colspan="2" class="deaths">💀</th>
-          <th colspan="2" class="berries">🍒</th>
-          <th rowspan="2" class="snail">🐌</th>
-          <th colspan="2" class="uptime">⏲️</th>
-        </tr>
-        <tr class="bottom">
-          <th class="blank"></th>
-          <th class="queenKills">👑</th>
-          <th class="warriorKills">⚔️</th>
-          <th class="workerKills">🐝</th>
-          <th class="warriorDeaths">👑/⚔️</th>
-          <th class="workerDeaths">🐝</th>
-          <th class="berryDunks" title="dunked berries">🏀</th>
-          <th class="berryThrows" title="thrown berries">↷</th>
-          <th class="gates" title="gate control">⛩️</th>
-          <th class="uptime" title="warrior uptime">⚔️</th>
-        </tr>
-      </thead>
-    </table>
-  </template>
+        <table>
+            <thead>
+                <tr class="top">
+                    <th class="blank"></th>
+                    <th colspan="3" class="kills">🗡️</th>
+                    <th colspan="2" class="deaths">💀</th>
+                    <th colspan="2" class="berries">🍒</th>
+                    <th rowspan="2" class="snail">🐌</th>
+                    <th colspan="2" class="uptime">⏲️</th>
+                </tr>
+                <tr class="bottom">
+                    <th class="blank"></th>
+                    <th class="queenKills">👑</th>
+                    <th class="warriorKills">⚔️</th>
+                    <th class="workerKills">🐝</th>
+                    <th class="warriorDeaths">👑/⚔️</th>
+                    <th class="workerDeaths">🐝</th>
+                    <th class="berryDunks" title="dunked berries">🏀</th>
+                    <th class="berryThrows" title="thrown berries">↷</th>
+                    <th class="gates" title="gate control">⛩️</th>
+                    <th class="uptime" title="warrior uptime">⚔️</th>
+                </tr>
+            </thead>
+        </table>
+    </template>
 </head>
 
 <body>
-    <a id="github" href="https://github.com/dperelman/kqb-stats-viewer">
-    Report issues or submit pull requests on GitHub
-  </a>
-    <button id="openDir" onclick="openDir()">Open directory</button>
-    <button id="open" onclick="openFile()">Open file</button>
+    <div class="button-group">
+        <div id="github">
+            <h3>GitHub</h3>
+            <p>
+                <a class="github-button" href="https://github.com/dperelman" data-size="large" aria-label="Follow @dperelman on GitHub">
+                    Follow @dperelman
+                </a>
+                <br>
+                <a class="github-button" href="https://github.com/dperelman/kqb-stats-viewer/discussions" data-icon="octicon-comment-discussion" data-size="large" aria-label="Discuss dperelman/kqb-stats-viewer on GitHub">
+                    Discuss
+                </a>
+                <br>
+                <a class="github-button" href="https://github.com/dperelman/kqb-stats-viewer/subscription" data-icon="octicon-eye" data-size="large" aria-label="Watch dperelman/kqb-stats-viewer on GitHub">
+                    Watch
+                </a>
+                <br>
+                <a class="github-button" href="https://github.com/dperelman/kqb-stats-viewer/issues" data-icon="octicon-issue-opened" data-size="large" aria-label="Issue dperelman/kqb-stats-viewer on GitHub">
+                    Issue
+                </a>
+            </p>
+        </div>
+
+        <div class="dir-button-group">
+            <button id="openDir" class="button" onclick="openDir()">Open directory</button>
+            <button id="open" class="button" onclick="openFile()">Open file</button>
+        </div>
+
+        <div id="navigation" style="display:none;">
+            <button id="oldest" class="button" onclick="loadOldest()" disabled>&laquo; Jump to Oldest</button>
+            <button id="prev" class="button" onclick="loadPrevious()" disabled>&lsaquo; Previous</button>
+            <button id="next" class="button" onclick="loadNext()" disabled>Next &rsaquo;</button>
+            <button id="latest" class="button" onclick="loadLatest()" disabled>Jump to Newest &raquo;</button>
+        </div>
+    </div>
+
     <div id="dirhelp">
         <h1>How to use</h1>
         <p>
@@ -1021,11 +1087,6 @@
             <dt>Linux (Steam Play/Proton)</dt>
             <dd>~/.local/share/Steam/steamapps/compatdata/663670/pfx/drive_c/users/steamuser/AppData/LocalLow/Liquid Bit, LLC/Killer Queen Black/match-stats/</dd>
         </dl>
-    </div>
-    <div id="navigation" style="display:none;">
-        <button id="prev" onclick="loadPrevious()" disabled>&lt; Previous</button>
-        <button id="next" onclick="loadNext()" disabled>Next &gt;</button>
-        <button id="latest" onclick="loadLatest()" disabled>Jump to Newest ⇉</button>
     </div>
     <h1 id="matchName"><span id="filename"></span></h1>
     <div id="stats"></div>
