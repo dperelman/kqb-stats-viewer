@@ -12,6 +12,9 @@ body {
 a {
   color: gold;
 }
+footer {
+  margin: 1ex;
+}
 #github {
   position: absolute;
   top: 0;
@@ -378,7 +381,11 @@ a {
   background: #873718;
 }
 
+#showJson:checked ~ pre.rawJson {
+  display: block;
+}
 pre.rawJson {
+  display: none;
   overflow-x: scroll;
 }
     </style>
@@ -1011,6 +1018,16 @@ pre.rawJson {
 
         matchStats.appendChild(detailedStats);
         div.appendChild(matchStats);
+
+        const showJson = document.createElement("input");
+        showJson.id = "showJson";
+        showJson.type = "checkbox";
+        div.appendChild(showJson);
+
+        const showJsonLabel = document.createElement("label");
+        showJsonLabel.innerText = "Show raw JSON";
+        showJsonLabel.htmlFor = "showJson";
+        div.appendChild(showJsonLabel);
 
         const jsonDisplay = document.createElement("pre");
         jsonDisplay.classList.add("rawJson");
