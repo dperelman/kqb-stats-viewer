@@ -17,10 +17,10 @@ a {
   top: 0;
   right: 0;
 }
-#navigation {
+.navigation {
   text-align: center;
 }
-#navigation button {
+.navigation button {
   font-size: 3em;
 }
 #stats .winner {
@@ -31,11 +31,11 @@ a {
   top: 0;
   z-index: 1;
 }
-#stats .gold-winner {
+#stats .gold-winner, #bglMatchName .gold {
   color: #ee914b;
   text-shadow: 0 0.07em 2px #b84d1f;
 }
-#stats .blue-winner {
+#stats .blue-winner, #bglMatchName .blue {
   color: #40c4f2;
   text-shadow: 0 0.07em 2px #495df1;
 }
@@ -203,14 +203,14 @@ a {
   text-align: right;
 }
 
-#stats .playerMatchStats .blue {
+#stats .playerMatchStats .blue, #stats .playerMatchStats .blue a {
   color: #03c9ee;
 }
 #stats .playerMatchStats .blue .summaryStats div {
   background: #4664dd;
 }
 
-#stats .playerMatchStats .gold {
+#stats .playerMatchStats .gold, #stats .playerMatchStats .gold a {
   color: #ecc534;
 }
 #stats .playerMatchStats .gold .summaryStats div {
@@ -383,6 +383,16 @@ pre.rawJson {
 }
     </style>
     <script language="javascript" >
+      let dir;
+      let seenFiles;
+      let currentFilename;
+      let previousFilename;
+      let nextFilename;
+      let bglMatch = undefined;
+      let bglSet = undefined;
+      let teamIdMap = {};
+      let playerIdMap = {};
+      let playerNicknameMap = {};
       async function openFile() {
         let file;
         if (!window.showOpenFilePicker) {
@@ -401,15 +411,22 @@ pre.rawJson {
           multiple: false,
         });
         if (!file) return;
+
+        dir = undefined;
+        seenFiles = undefined;
+        currentFilename = undefined;
+        previousFilename = undefined;
+        nextFilename = undefined;
+        bglMatch = undefined;
+        bglSet = undefined;
+        teamIdMap = {};
+        playerIdMap = {};
+        playerNicknameMap = {};
+
         document.getElementById("dirhelp").style.display = "none";
         document.getElementById("filename").innerText = file.name;
         displayStats(JSON.parse(await (await file.getFile()).text()));
       }
-      let dir;
-      let seenFiles;
-      let currentFilename;
-      let previousFilename;
-      let nextFilename;
       async function openDir() {
         if (!window.showDirectoryPicker) {
           alert("Sorry, your web browser is unsupported. Try a recent build of Google Chrome/Chromium.");
@@ -425,8 +442,15 @@ pre.rawJson {
             e.returnValue = '';
           });
 
+          bglMatch = undefined;
+          bglSet = undefined;
+          teamIdMap = {};
+          playerIdMap = {};
+          playerNicknameMap = {};
+
           document.getElementById("dirhelp").style.display = "none";
           document.getElementById("navigation").style.display = "";
+          document.getElementById("bglNavigation").style.display = "none";
           seenFiles = new Map();
           previousFilename = undefined;
           nextFilename = undefined;
@@ -478,6 +502,102 @@ pre.rawJson {
       }
       async function loadPrevious() {
         loadByFilename(previousFilename);
+      }
+
+      async function loadBglMatch(bglid) {
+        const bglMatchResponse = await fetch("https://api.beegame.gg/results/"
+                                             + bglid + "/?format=json");
+        bglMatch = await bglMatchResponse.json();
+        teamIdMap = {};
+        playerIdMap = {};
+        playerNicknameMap = {};
+
+        async function loadPlayer(playerId) {
+          const bglPlayerResponse = await fetch(
+                  "https://api.beegame.gg/players/"+ playerId
+                  + "/?format=json");
+          return await bglPlayerResponse.json();
+        }
+        const playersPromise = Promise.all(bglMatch.player_mappings.map(
+                p => loadPlayer(p.player)));
+
+        const firstGame = bglMatch.sets[0].games[0];
+        teamIdMap[firstGame.winner.id] = firstGame.winner;
+        teamIdMap[firstGame.loser.id] = firstGame.loser;
+
+        const teamMap = {2: "blue", 1: "gold"};
+        const teamColorMap = {};
+        for (const mapping of bglMatch.team_mappings) {
+          teamColorMap[teamMap[mapping.color]] = mapping.team;
+        }
+        const blueTeam = teamIdMap[teamColorMap["blue"]]
+        const goldTeam = teamIdMap[teamColorMap["gold"]]
+
+        document.getElementById("dirhelp").style.display = "none";
+        document.getElementById("navigation").style.display = "none";
+        document.getElementById("bglNavigation").style.display = "";
+
+        const matchName = document.getElementById("bglMatchName");
+        while (matchName.firstChild) {
+          matchName.removeChild(matchName.lastChild);
+        }
+        const teamNodes = {};
+        for (const color of ["blue", "gold"]) {
+          const teamNode = document.createElement("a");
+          teamNode.classList.add(color);
+          const team = teamIdMap[teamColorMap[color]];
+          teamNode.href = "https://league.beegame.gg/teams/" + team.id + "/";
+          const setsWon = bglMatch.sets.filter(set => set.winner == team.id)
+                                       .length;
+          teamNode.innerText = team.name
+                  + (bglMatch.winner == team.id ? "🏆" : "")
+                  + " ("
+                  + setsWon
+                  + ")";
+          teamNodes[color] = teamNode;
+        }
+        const datetimeMatch = bglMatch.sets[0].log.filename.match(/Custom-(?<year>\d{4})-(?<month>\d{2})-(?<day>\d{2})-(?<hour>\d{2})-(?<minute>\d{2})-(?<second>\d{2})\.json/);
+        const matchDatetime = new Date(
+                datetimeMatch.groups.year,
+                datetimeMatch.groups.month - 1,
+                datetimeMatch.groups.day,
+                datetimeMatch.groups.hour,
+                datetimeMatch.groups.minute,
+                datetimeMatch.groups.second);
+        matchName.appendChild(document.createTextNode(
+                blueTeam.circuit_abbrev
+                + " (" + matchDatetime.toLocaleString() + "): "));
+        matchName.appendChild(teamNodes["blue"]);
+        matchName.appendChild(document.createTextNode(" vs. "));
+        matchName.appendChild(teamNodes["gold"]);
+
+        const playersList = await playersPromise;
+        for (const player of playersList) {
+          playerIdMap[player.id] = player;
+        }
+        for (const mapping of bglMatch.player_mappings) {
+          playerNicknameMap[mapping.nickname] = playerIdMap[mapping.player];
+        }
+
+        loadBglSet(0);
+      }
+      function loadBglSet(num) {
+        const numSets = bglMatch.sets.length;
+        if (num < 0 || num >= numSets) return;
+        bglSet = num;
+
+        document.getElementById("prevBgl").disabled = bglSet == 0;
+        document.getElementById("nextBgl").disabled = bglSet == numSets - 1;
+
+        document.getElementById("filename").innerText = "Set " + (bglSet+1)
+                                                        + "/" + numSets;
+        displayStats(bglMatch.sets[bglSet].log.body);
+      }
+      function loadNextBgl() {
+        loadBglSet(bglSet + 1);
+      }
+      function loadPreviousBgl() {
+        loadBglSet(bglSet - 1);
       }
 
       function displayStats(stats) {
@@ -602,7 +722,17 @@ pre.rawJson {
             } else if (profile && profile.currentLeague >= 0) {
               nameDiv.classList.add("league-" + profile.currentLeague);
             }
-            nameDiv.innerText = nickname;
+            if (nickname in playerNicknameMap) {
+              const player = playerNicknameMap[nickname];
+              const nameLink = document.createElement("a");
+              nameLink.innerText = player.name;
+              nameLink.href = "https://league.beegame.gg/player/"
+                              + player.id + "/";
+              nameDiv.appendChild(nameLink);
+            }
+            else {
+              nameDiv.innerText = nickname;
+            }
             identification.appendChild(nameDiv);
 
             if (document.getElementById("filename").innerText
@@ -786,7 +916,13 @@ pre.rawJson {
 
               const nameCell = document.createElement("td");
               nameCell.classList.add("nickname");
-              nameCell.innerText = nickname;
+              if (nickname in playerNicknameMap) {
+                const player = playerNicknameMap[nickname];
+                nameCell.innerText = player.name;
+              }
+              else {
+                nameCell.innerText = nickname;
+              }
               row.appendChild(nameCell);
 
               for (let detail of detailedStatsInfo) {
@@ -881,6 +1017,14 @@ pre.rawJson {
         jsonDisplay.innerText = JSON.stringify(stats, null, 2);
         div.appendChild(jsonDisplay);
       }
+
+      window.onload = function() {
+        const hash = window.location.hash;
+        const match = hash.match(/^#bglid=(?<bglid>\d+)$/);
+        if (match) {
+          loadBglMatch(match.groups.bglid);
+        }
+      }
     </script>
     <template id="detailedStats">
       <table>
@@ -954,10 +1098,15 @@ pre.rawJson {
         <dd>~/.local/share/Steam/steamapps/compatdata/663670/pfx/drive_c/users/steamuser/AppData/LocalLow/Liquid Bit, LLC/Killer Queen Black/match-stats/</dd>
       </dl>
     </div>
-    <div id="navigation" style="display:none;">
+    <div id="navigation" class="navigation" style="display:none;">
       <button id="prev" onclick="loadPrevious()" disabled>&lt; Previous</button>
       <button id="next" onclick="loadNext()" disabled>Next &gt;</button>
       <button id="latest" onclick="loadLatest()" disabled>Jump to Newest ⇉</button>
+    </div>
+    <div id="bglNavigation" class="navigation" style="display:none;">
+      <h1 id="bglMatchName"></h1>
+      <button id="prevBgl" onclick="loadPreviousBgl()" disabled>&lt; Previous Set</button>
+      <button id="nextBgl" onclick="loadNextBgl()" disabled>Next Set &gt;</button>
     </div>
     <h1 id="matchName"><span id="filename"></span></h1>
     <div id="stats"></div>
