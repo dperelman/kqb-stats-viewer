@@ -511,10 +511,24 @@ pre.rawJson {
         loadByFilename(previousFilename);
       }
 
-      async function loadBglMatch(bglid) {
+      async function loadBglMatch(matchId) {
+        const bglMatchResponse = await fetch("https://api.beegame.gg/matches/"
+                                             + matchId + "/?format=json");
+        const match = await bglMatchResponse.json();
+        await loadBglResults(match.result.id, match)
+      }
+      async function loadBglResults(resultsId, matchInfo) {
         const bglMatchResponse = await fetch("https://api.beegame.gg/results/"
-                                             + bglid + "/?format=json");
+                                             + resultsId + "/?format=json");
         bglMatch = await bglMatchResponse.json();
+
+        if (!matchInfo) {
+          const bglMatchInfoResponse = await fetch(
+                "https://api.beegame.gg/matches/"
+                + bglMatch.match + "/?format=json");
+          matchInfo = await bglMatchInfoResponse.json();
+        }
+
         teamIdMap = {};
         playerIdMap = {};
         playerNicknameMap = {};
@@ -563,20 +577,20 @@ pre.rawJson {
                   + ")";
           teamNodes[color] = teamNode;
         }
-        const datetimeMatch = bglMatch.sets[0].log.filename.match(/Custom-(?<year>\d{4})-(?<month>\d{2})-(?<day>\d{2})-(?<hour>\d{2})-(?<minute>\d{2})-(?<second>\d{2})\.json/);
-        const matchDatetime = new Date(
-                datetimeMatch.groups.year,
-                datetimeMatch.groups.month - 1,
-                datetimeMatch.groups.day,
-                datetimeMatch.groups.hour,
-                datetimeMatch.groups.minute,
-                datetimeMatch.groups.second);
         matchName.appendChild(document.createTextNode(
-                blueTeam.circuit_abbrev
-                + " (" + matchDatetime.toLocaleString() + "): "));
+                matchInfo.circuit.season.name + ": "));
+        const tierLink = document.createElement("a");
+        tierLink.href = "https://league.beegame.gg/circuits/"
+                        + matchInfo.circuit.id + "/";
+        tierLink.innerText = matchInfo.circuit.name;
+        matchName.appendChild(tierLink);
+        matchName.appendChild(document.createTextNode(
+                ": " + matchInfo.round.name + ": "));
         matchName.appendChild(teamNodes["blue"]);
         matchName.appendChild(document.createTextNode(" vs. "));
         matchName.appendChild(teamNodes["gold"]);
+        matchName.appendChild(document.createTextNode(
+                " (" + new Date(matchInfo.start_time).toLocaleString() + ")"));
 
         const playersList = await playersPromise;
         for (const player of playersList) {
@@ -1037,9 +1051,13 @@ pre.rawJson {
 
       window.onload = function() {
         const hash = window.location.hash;
-        const match = hash.match(/^#bglid=(?<bglid>\d+)$/);
+        const match = hash.match(/^#bgl(results)?id=(?<bglid>\d+)$/i);
         if (match) {
-          loadBglMatch(match.groups.bglid);
+          loadBglResults(match.groups.bglid);
+        }
+        const match2 = hash.match(/^#bglMatchId=(?<bglmatchid>\d+)$/i);
+        if (match2) {
+          loadBglMatch(match2.groups.bglmatchid);
         }
       }
     </script>
