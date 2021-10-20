@@ -66,10 +66,11 @@
                     (a,b) => a.verbose_name.localeCompare(b.verbose_name))) {
             const circuitEl = document.createElement("li");
             circuitEl.innerText = circuit.verbose_name;
+            circuitEl.onclick = () => loadCircuit(circuitEl, season, circuit);
             circuitsList.appendChild(circuitEl);
           }
           circuits.appendChild(circuitsList);
-          //subList.appendChild(circuits);
+          subList.appendChild(circuits);
 
           const rounds = document.createElement("li");
           appendFold(rounds, "Rounds", "season-" + season.id + "-rounds");
@@ -105,6 +106,7 @@
           const item = document.createElement("li");
           const link = document.createElement("a");
           link.href = "stats.html#bglmatchid=" + match.id;
+          link.target = "_blank";
           link.innerText = new Date(match.start_time).toLocaleString()
                   + ": "
                   + match.away.name + " vs. " + match.home.name
@@ -115,6 +117,58 @@
           return item;
         });
         roundEl.appendChild(matchList);
+      }
+
+      async function loadCircuit(circuitEl, season, circuit) {
+        circuitEl.onclick = null;
+        const circuitName = circuitEl.innerText;
+        circuitEl.innerText = "";
+        appendFold(circuitEl, circuitName,
+                   "season-" + season.id + "-circuit-" + circuit.id,
+                   true);
+
+        const teamsList = document.createElement("ul");
+        teamsList.classList.add("foldable");
+        const circuitTeamsUrl = "https://api.beegame.gg/teams/?circuit="
+                                + circuit.id;
+        await loadList(teamsList, circuitTeamsUrl, (team) => {
+          const item = document.createElement("li");
+          item.innerText = team.name;
+          item.onclick = () => loadTeam(item, team, circuit);
+          return item;
+        });
+        circuitEl.appendChild(teamsList);
+      }
+
+      async function loadTeam(teamEl, team, circuit) {
+        teamEl.onclick = null;
+        const teamName = teamEl.innerText;
+        teamEl.innerText = "";
+        appendFold(teamEl, teamName,
+                   "circuit-" + circuit.id + "-team-" + team.id,
+                   true);
+
+        const matchList = document.createElement("ul");
+        matchList.classList.add("foldable");
+        const teamMatchesUrl = "https://api.beegame.gg/matches/?status=C"
+                + "&circuit=" + circuit.id
+                + "&team_id=" + team.id;
+        await loadList(matchList, teamMatchesUrl, (match) => {
+          const item = document.createElement("li");
+          const link = document.createElement("a");
+          link.href = "stats.html#bglmatchid=" + match.id;
+          link.target = "_blank";
+          link.innerText =
+                  match.round.name + ": "
+                  + new Date(match.start_time).toLocaleString() + ": "
+                  + match.away.name + " vs. " + match.home.name
+                  + " ("
+                  + match.result.sets_away + "-" + match.result.sets_home
+                  + ")";
+          item.appendChild(link);
+          return item;
+        });
+        teamEl.appendChild(matchList);
       }
 
       window.onload = loadSeasons;
