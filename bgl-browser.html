@@ -9,6 +9,28 @@
 .fold:checked + label + .foldable {
   display: block;
 }
+
+.loadable::before, .fold:not(:checked) + label::before {
+  content: "⊞";
+  padding-right: 1ex;
+}
+.fold:checked + label::before {
+  content: "⊟";
+  padding-right: 1ex;
+}
+.fold {
+  display: none;
+}
+
+li {
+  list-style: none;
+}
+.loadMore {
+  color: #664;
+  font-weight: bold;
+  cursor: pointer;
+  list-style: "↓";
+}
     </style>
     <script language="javascript" >
       async function loadList(listEl, url, generateItem) {
@@ -66,6 +88,7 @@
                     (a,b) => a.verbose_name.localeCompare(b.verbose_name))) {
             const circuitEl = document.createElement("li");
             circuitEl.innerText = circuit.verbose_name;
+            circuitEl.classList.add("loadable");
             circuitEl.onclick = () => loadCircuit(circuitEl, season, circuit);
             circuitsList.appendChild(circuitEl);
           }
@@ -79,6 +102,7 @@
           for (const round of season.rounds) {
             const roundEl = document.createElement("li");
             roundEl.innerText = round.name;
+            roundEl.classList.add("loadable");
             roundEl.onclick = () => loadRound(roundEl, season, round);
             roundsList.appendChild(roundEl);
           }
@@ -92,6 +116,7 @@
 
       async function loadRound(roundEl, season, round) {
         roundEl.onclick = null;
+        roundEl.classList.remove("loadable");
         const roundName = roundEl.innerText;
         roundEl.innerText = "";
         appendFold(roundEl, roundName,
@@ -121,6 +146,7 @@
 
       async function loadCircuit(circuitEl, season, circuit) {
         circuitEl.onclick = null;
+        circuitEl.classList.remove("loadable");
         const circuitName = circuitEl.innerText;
         circuitEl.innerText = "";
         appendFold(circuitEl, circuitName,
@@ -134,6 +160,7 @@
         await loadList(teamsList, circuitTeamsUrl, (team) => {
           const item = document.createElement("li");
           item.innerText = team.name;
+          item.classList.add("loadable");
           item.onclick = () => loadTeam(item, team, circuit);
           return item;
         });
@@ -142,6 +169,7 @@
 
       async function loadTeam(teamEl, team, circuit) {
         teamEl.onclick = null;
+        teamEl.classList.remove("loadable");
         const teamName = teamEl.innerText;
         teamEl.innerText = "";
         appendFold(teamEl, teamName,
