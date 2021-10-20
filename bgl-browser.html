@@ -1,0 +1,126 @@
+<!doctype html>
+<html>
+  <head>
+    <title>BGL match browser for stats viewer</title>
+    <style type="text/css" >
+.foldable {
+  display: none;
+}
+.fold:checked + label + .foldable {
+  display: block;
+}
+    </style>
+    <script language="javascript" >
+      async function loadList(listEl, url, generateItem) {
+        const response = await fetch(url);
+        const json = await response.json();
+        
+        const sorted_results = json.results.sort((a,b) =>
+                new Date(b.tournament_start) - new Date(a.tournament_start))
+        for (const result of sorted_results) {
+          listEl.appendChild(generateItem(result));
+        }
+
+        if (json.next) {
+          const loadMore = document.createElement("li");
+          loadMore.classList.add("loadMore");
+          loadMore.innerText = "Load more…";
+          loadMore.onclick = () => {
+            listEl.removeChild(loadMore);
+            loadList(listEl, json.next, generateItem);
+          }
+          listEl.appendChild(loadMore);
+        }
+      }
+
+      function appendFold(container, text, id, unfold) {
+        const checkbox = document.createElement("input");
+        checkbox.classList.add("fold");
+        checkbox.type = "checkbox";
+        checkbox.id = id;
+        if (unfold) checkbox.checked = true;
+        container.appendChild(checkbox);
+        const label = document.createElement("label");
+        label.innerText = text;
+        label.htmlFor = id;
+        container.appendChild(label);
+        return label;
+      }
+
+      async function loadSeasons() {
+        await loadList(document.getElementById("seasons"),
+                       "https://api.beegame.gg/seasons/?format=json",
+                       (season) => {
+          const res = document.createElement("li");
+          res.classList.add("season");
+          appendFold(res, season.name, "season-" + season.id);
+          const subList = document.createElement("ul");
+          subList.classList.add("foldable");
+
+          const circuits = document.createElement("li");
+          appendFold(circuits, "Circuits",
+                     "season-" + season.id + "-circuits");
+          const circuitsList = document.createElement("ul");
+          circuitsList.classList.add("foldable");
+          for (const circuit of season.circuits.sort(
+                    (a,b) => a.verbose_name.localeCompare(b.verbose_name))) {
+            const circuitEl = document.createElement("li");
+            circuitEl.innerText = circuit.verbose_name;
+            circuitsList.appendChild(circuitEl);
+          }
+          circuits.appendChild(circuitsList);
+          //subList.appendChild(circuits);
+
+          const rounds = document.createElement("li");
+          appendFold(rounds, "Rounds", "season-" + season.id + "-rounds");
+          const roundsList = document.createElement("ul");
+          roundsList.classList.add("foldable");
+          for (const round of season.rounds) {
+            const roundEl = document.createElement("li");
+            roundEl.innerText = round.name;
+            roundEl.onclick = () => loadRound(roundEl, season, round);
+            roundsList.appendChild(roundEl);
+          }
+          rounds.appendChild(roundsList);
+          subList.appendChild(rounds);
+
+          res.appendChild(subList);
+          return res;
+        });
+      }
+
+      async function loadRound(roundEl, season, round) {
+        roundEl.onclick = null;
+        const roundName = roundEl.innerText;
+        roundEl.innerText = "";
+        appendFold(roundEl, roundName,
+                   "season-" + season.id + "-round-" + round.id,
+                   true);
+        const matchList = document.createElement("ul");
+        matchList.classList.add("foldable");
+        const roundMatchesUrl = "https://api.beegame.gg/matches/?status=C"
+                + "&round=" + encodeURIComponent(round.round_number)
+                + "&season=" + encodeURIComponent(season.name);
+        await loadList(matchList, roundMatchesUrl, (match) => {
+          const item = document.createElement("li");
+          const link = document.createElement("a");
+          link.href = "stats.html#bglmatchid=" + match.id;
+          link.innerText = new Date(match.start_time).toLocaleString()
+                  + ": "
+                  + match.away.name + " vs. " + match.home.name
+                  + " ("
+                  + match.result.sets_away + "-" + match.result.sets_home
+                  + ")";
+          item.appendChild(link);
+          return item;
+        });
+        roundEl.appendChild(matchList);
+      }
+
+      window.onload = loadSeasons;
+    </script>
+  </head>
+  <body>
+    <ul id="seasons"></div>
+  </body>
+</html>
