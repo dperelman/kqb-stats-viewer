@@ -1054,7 +1054,55 @@ pre.rawJson {
                     data: game.snailPosition,
                     borderColor: "#f016d7",
                     backgroundColor: "#f016d7",
-                    yAxisId: 'snail',
+                    yAxisID: 'snail',
+                    parsing: {
+                      xAxisKey: 'time',
+                      yAxisKey: 'count',
+                    }
+                  },
+                  {
+                    label: 'Blue berries',
+                    data: game.blueBerryCount,
+                    borderColor: "blue",
+                    backgroundColor: "blue",
+                    stepped: true,
+                    yAxisID: 'berries',
+                    parsing: {
+                      xAxisKey: 'time',
+                      yAxisKey: 'count',
+                    }
+                  },
+                  {
+                    label: 'Gold berries',
+                    data: game.goldBerryCount,
+                    borderColor: "gold",
+                    backgroundColor: "gold",
+                    stepped: true,
+                    yAxisID: 'berries',
+                    parsing: {
+                      xAxisKey: 'time',
+                      yAxisKey: 'count',
+                    }
+                  },
+                  {
+                    label: 'Blue warriors up',
+                    data: game.blueWarriorsUp,
+                    borderColor: "blue",
+                    backgroundColor: "blue",
+                    stepped: true,
+                    yAxisID: 'warriorsUp',
+                    parsing: {
+                      xAxisKey: 'time',
+                      yAxisKey: 'count',
+                    }
+                  },
+                  {
+                    label: 'Gold warriors up',
+                    data: game.goldWarriorsUp,
+                    borderColor: "gold",
+                    backgroundColor: "gold",
+                    stepped: true,
+                    yAxisID: 'warriorsUp',
                     parsing: {
                       xAxisKey: 'time',
                       yAxisKey: 'count',
@@ -1064,6 +1112,10 @@ pre.rawJson {
               },
               options: {
                 responsive: true,
+                interaction: {
+                  intersect: false,
+                },
+                stacked: false,
                 scales: {
                   x: {
                     type: 'linear',
@@ -1097,6 +1149,36 @@ pre.rawJson {
                                 + (pos == game.blueSnailGatePos ? 'goal ' : '')
                                 + String(-pos)
                           : 'snail start'),
+                    },
+                  },
+                  berries: {
+                    type: 'linear',
+                    display: true,
+                    position: 'right',
+                    axis: 'y',
+                    min: 0,
+                    max: game.berriesNeeded,
+                    ticks: {
+                      stepSize: 2,
+                      callback: num => num + ' 🍒'
+                    },
+                    grid: {
+                      drawOnChartArea: false,
+                    },
+                  },
+                  warriorsUp: {
+                    type: 'linear',
+                    display: true,
+                    position: 'right',
+                    axis: 'y',
+                    min: 0,
+                    max: 3,
+                    ticks: {
+                      stepSize: 1,
+                      callback: num => num + ' ⚔️'
+                    },
+                    grid: {
+                      drawOnChartArea: false,
                     },
                   },
                   y: {
