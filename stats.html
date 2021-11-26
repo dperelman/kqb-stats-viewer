@@ -1050,6 +1050,7 @@ pre.rawJson {
               data: {
                 datasets: [
                   {
+                    type: 'line',
                     label: 'Snail position',
                     data: game.snailPosition,
                     borderColor: "#f016d7",
@@ -1061,6 +1062,7 @@ pre.rawJson {
                     }
                   },
                   {
+                    type: 'line',
                     label: 'Blue berries',
                     data: game.blueBerryCount,
                     borderColor: "blue",
@@ -1073,6 +1075,7 @@ pre.rawJson {
                     }
                   },
                   {
+                    type: 'line',
                     label: 'Gold berries',
                     data: game.goldBerryCount,
                     borderColor: "gold",
@@ -1085,6 +1088,7 @@ pre.rawJson {
                     }
                   },
                   {
+                    type: 'line',
                     label: 'Blue warriors up',
                     data: game.blueWarriorsUp,
                     borderColor: "blue",
@@ -1097,6 +1101,7 @@ pre.rawJson {
                     }
                   },
                   {
+                    type: 'line',
                     label: 'Gold warriors up',
                     data: game.goldWarriorsUp,
                     borderColor: "gold",
@@ -1106,6 +1111,32 @@ pre.rawJson {
                     parsing: {
                       xAxisKey: 'time',
                       yAxisKey: 'count',
+                    }
+                  },
+                  {
+                    type: 'scatter',
+                    label: 'Blue queen kills',
+                    data: game.blueQueenKillTimes
+                          .map((time, idx) => ({x: time, y: idx+1})),
+                    borderColor: "blue",
+                    backgroundColor: "blue",
+                    //yAxisID: 'queenKills',
+                    parsing: {
+                      xAxisKey: 'x',
+                      yAxisKey: 'y',
+                    }
+                  },
+                  {
+                    type: 'scatter',
+                    label: 'Gold queen kills',
+                    data: game.goldQueenKillTimes
+                          .map((time, idx) => ({x: time, y: idx+1})),
+                    borderColor: "gold",
+                    backgroundColor: "gold",
+                    //yAxisID: 'queenKills',
+                    parsing: {
+                      xAxisKey: 'x',
+                      yAxisKey: 'y',
                     }
                   },
                 ],
@@ -1181,9 +1212,12 @@ pre.rawJson {
                       drawOnChartArea: false,
                     },
                   },
+                  queenKills: {
+                    display: false,
+                  },
                   y: {
                     display: false,
-                  }
+                  },
                 }
               }
             });
