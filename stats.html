@@ -1114,30 +1114,22 @@ pre.rawJson {
                     }
                   },
                   {
-                    type: 'scatter',
+                    type: 'bubble',
                     label: 'Blue queen kills',
                     data: game.blueQueenKillTimes
-                          .map((time, idx) => ({x: time, y: idx+1})),
+                          .map((time, idx) => ({x: time, y: 1, r: idx+1})),
                     borderColor: "blue",
                     backgroundColor: "blue",
-                    //yAxisID: 'queenKills',
-                    parsing: {
-                      xAxisKey: 'x',
-                      yAxisKey: 'y',
-                    }
+                    yAxisID: 'queenKills',
                   },
                   {
-                    type: 'scatter',
+                    type: 'bubble',
                     label: 'Gold queen kills',
                     data: game.goldQueenKillTimes
-                          .map((time, idx) => ({x: time, y: idx+1})),
+                          .map((time, idx) => ({x: time, y: 1, r: idx+1})),
                     borderColor: "gold",
                     backgroundColor: "gold",
-                    //yAxisID: 'queenKills',
-                    parsing: {
-                      xAxisKey: 'x',
-                      yAxisKey: 'y',
-                    }
+                    yAxisID: 'queenKills',
                   },
                 ],
               },
@@ -1221,7 +1213,18 @@ pre.rawJson {
                     },
                   },
                   queenKills: {
+                    type: 'linear',
                     display: false,
+                    position: 'right',
+                    axis: 'y',
+                    min: 0,
+                    max: 1,
+                    ticks: {
+                      stepSize: 1,
+                    },
+                    grid: {
+                      drawOnChartArea: false,
+                    },
                   },
                   y: {
                     display: false,
