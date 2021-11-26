@@ -1180,6 +1180,14 @@ pre.rawJson {
                                 + (pos == game.blueSnailGatePos ? 'goal ' : '')
                                 + String(-pos)
                           : 'snail start'),
+                      color: function(context) {
+                        const value = context.tick.value;
+                        return value > 0
+                                ? '#ee914b'
+                                : value < 0
+                                ? '#40c4f2'
+                                : 'white';
+                      },
                     },
                   },
                   berries: {
