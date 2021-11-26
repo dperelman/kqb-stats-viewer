@@ -395,6 +395,21 @@ pre.rawJson {
       if (chartsEnabled) {
         Chart.defaults.borderColor = '#aaaaaa';
         Chart.defaults.color = 'white';
+
+        class TimestampScale extends Chart.LinearScale {
+          getLabelForValue(seconds) {
+            const decimal = seconds - Math.floor(seconds);
+            const decimalStr = decimal
+                    .toLocaleString(undefined, { maximumFractionDigits: 2 })
+                    .substring(1);
+            return String(Math.floor(seconds / 60))
+              + ":"
+              + String(Math.floor(seconds % 60)).padStart(2, '0')
+              + decimalStr
+          }
+        }
+        TimestampScale.id = 'timestamp';
+        Chart.register(TimestampScale);
       }
 
       let dir;
@@ -1143,7 +1158,7 @@ pre.rawJson {
                 stacked: false,
                 scales: {
                   x: {
-                    type: 'linear',
+                    type: 'timestamp',
                     display: true,
                     position: 'bottom',
                     axis: 'x',
