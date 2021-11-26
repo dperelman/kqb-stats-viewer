@@ -86,7 +86,7 @@ footer {
   grid-column: 2;
 }
 
-#stats .map {
+#stats li.map {
   margin: 3em 0;
 }
 
@@ -913,7 +913,14 @@ pre.rawJson {
           const detailSection = document.createElement("div");
           detailSection.classList.add("detailSection");
           const detailTitle = document.createElement("h3");
-          detailTitle.innerText = i == -1 ? "Entire set" : "Map " + (i+1);
+          if (i == -1) {
+            detailTitle.innerText = "Entire set";
+          } else {
+            const mapInList = maps.children[i]
+            detailTitle.innerText = "Map " + (i+1) + ": "
+                                    + mapInList.innerText;
+            detailTitle.classList = mapInList.classList;
+          }
           detailSection.appendChild(detailTitle);
           const detailTemplate = document.querySelector("#detailedStats")
                                  .content.cloneNode(true);
