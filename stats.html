@@ -391,6 +391,12 @@ pre.rawJson {
     </style>
     <script language="javascript" src="chart.min.js"></script>
     <script language="javascript" >
+      const chartsEnabled = typeof Chart !== 'undefined';
+      if (chartsEnabled) {
+        Chart.defaults.borderColor = '#aaaaaa';
+        Chart.defaults.color = 'white';
+      }
+
       let dir;
       let seenFiles;
       let currentFilename;
@@ -880,9 +886,14 @@ pre.rawJson {
           const detailTitle = document.createElement("h3");
           detailTitle.innerText = i == -1 ? "Entire set" : "Map " + (i+1);
           detailSection.appendChild(detailTitle);
-          const detailTable = document.querySelector("#detailedStats")
-                              .content.cloneNode(true).querySelector("table");
-          detailSection.appendChild(detailTable);
+          const detailTemplate = document.querySelector("#detailedStats")
+                                 .content.cloneNode(true);
+          if (i == -1 || !chartsEnabled) {
+            detailTemplate.removeChild(
+                    detailTemplate.querySelector(".mapCharts"));
+          }
+          const detailTable = detailTemplate.querySelector("table");
+          detailSection.appendChild(detailTemplate);
           detailedStats.appendChild(detailSection);
 
           const duration = i == -1 ? totalDuration : stats.games[i].duration;
@@ -1029,6 +1040,72 @@ pre.rawJson {
 
             detailTable.appendChild(tbody);
           }
+
+          if (i != -1 && chartsEnabled) {
+            const game = stats.games[i];
+            const chartCtx = detailSection
+                             .querySelector(".mapCharts canvas.mapChart");
+            const mapChart = new Chart(chartCtx, {
+              type: 'line',
+              data: {
+                datasets: [
+                  {
+                    label: 'Snail position',
+                    data: game.snailPosition,
+                    borderColor: "#f016d7",
+                    backgroundColor: "#f016d7",
+                    yAxisId: 'snail',
+                    parsing: {
+                      xAxisKey: 'time',
+                      yAxisKey: 'count',
+                    }
+                  },
+                ],
+              },
+              options: {
+                responsive: true,
+                scales: {
+                  x: {
+                    type: 'linear',
+                    display: true,
+                    position: 'bottom',
+                    axis: 'x',
+                    min: 0,
+                    max: game.duration,
+                    ticks: {
+                      stepSize: 15,
+                      callback: seconds => String(Math.floor(seconds / 60))
+                        + ":"
+                        + String(Math.floor(seconds % 60)).padStart(2, '0')
+                    },
+                  },
+                  snail: {
+                    title: "Snail Position (up is gold, down is blue)",
+                    type: 'linear',
+                    display: true,
+                    position: 'left',
+                    axis: 'y',
+                    min: game.blueSnailGatePos,
+                    max: game.goldSnailGatePos,
+                    ticks: {
+                      callback: (pos, index, ticks) => (pos > 0
+                          ? 'gold '
+                                + (pos == game.goldSnailGatePos ? 'goal ' : '')
+                                + String(pos)
+                          : pos < 0
+                          ? 'blue '
+                                + (pos == game.blueSnailGatePos ? 'goal ' : '')
+                                + String(-pos)
+                          : 'snail start'),
+                    },
+                  },
+                  y: {
+                    display: false,
+                  }
+                }
+              }
+            });
+          }
         }
 
         matchStats.appendChild(detailedStats);
@@ -1087,6 +1164,9 @@ pre.rawJson {
           </tr>
         </thead>
       </table>
+      <div class="mapCharts">
+        <canvas class="mapChart"></canvas>
+      </div>
     </template>
   </head>
   <body>
