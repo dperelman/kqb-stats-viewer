@@ -410,6 +410,20 @@ pre.rawJson {
         }
         TimestampScale.id = 'timestamp';
         Chart.register(TimestampScale);
+
+        class SnailPositionScale extends Chart.LinearScale {
+          getLabelForValue(pos) {
+            return (pos > 0
+                    ? 'gold '
+                          + String(pos)
+                    : pos < 0
+                    ? 'blue '
+                          + String(-pos)
+                    : 'snail start');
+          }
+        }
+        SnailPositionScale.id = 'snailPosition';
+        Chart.register(SnailPositionScale);
       }
 
       let dir;
@@ -1155,6 +1169,28 @@ pre.rawJson {
                 interaction: {
                   intersect: false,
                 },
+                plugins: {
+                  tooltip: {
+                    callbacks: {
+                      label: function(context) {
+                        if (context.dataset.yAxisID === "queenKills") {
+                          return context.dataset.label.slice(0, -1)
+                                  + " #" + context.raw.r;
+                        }
+
+                        let label = context.dataset.label || '';
+
+                        if (label) {
+                          label += ': ';
+                        }
+                        if (context.parsed.y !== null) {
+                          label += context.formattedValue;
+                        }
+                        return label;
+                      },
+                    },
+                  },
+                },
                 stacked: false,
                 scales: {
                   x: {
@@ -1173,7 +1209,7 @@ pre.rawJson {
                   },
                   snail: {
                     title: "Snail Position (up is gold, down is blue)",
-                    type: 'linear',
+                    type: 'snailPosition',
                     display: true,
                     position: 'left',
                     axis: 'y',
