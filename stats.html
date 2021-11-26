@@ -1114,22 +1114,24 @@ pre.rawJson {
                     }
                   },
                   {
-                    type: 'bubble',
+                    type: 'scatter',
                     label: 'Blue queen kills',
                     data: game.blueQueenKillTimes
                           .map((time, idx) => ({x: time, y: 1, r: idx+1})),
                     borderColor: "blue",
                     backgroundColor: "blue",
                     yAxisID: 'queenKills',
+                    radius: 10,
                   },
                   {
-                    type: 'bubble',
+                    type: 'scatter',
                     label: 'Gold queen kills',
                     data: game.goldQueenKillTimes
                           .map((time, idx) => ({x: time, y: 1, r: idx+1})),
                     borderColor: "gold",
                     backgroundColor: "gold",
                     yAxisID: 'queenKills',
+                    radius: 10,
                   },
                 ],
               },
