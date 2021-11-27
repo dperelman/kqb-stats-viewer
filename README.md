@@ -4,6 +4,5 @@ Killer Queen Black match stats viewer in a browser
 
 ## External packages
 
-`chart.min.js`:
-[Chart.js](https://github.com/chartjs/Chart.js/releases/tag/v3.6.0),
-MIT-licensed
+Files under [`external`](/external/) are included from other projects.
+License information in [`README.md`](/external/README.md) in that directory.
