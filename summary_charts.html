@@ -1,0 +1,263 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Summary charts explorer for Killer Queen Black JSON stats files</title>
+    <style type="text/css" >
+body {
+  background: #2b0e50;
+  font-family: sans;
+  color: white;
+  margin: 0;
+}
+a {
+  color: gold;
+}
+footer {
+  margin: 1ex;
+}
+#github {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+    </style>
+    <script language="javascript" src="external/chart.min.js"></script>
+    <script language="javascript" src="external/chartjs-chart-boxplot/index.umd.min.js"></script>
+    <script language="javascript" >
+      const mapNames = {
+        2:  "Pod",
+        4:  "BQK",
+        7:  "Helix",
+        11: "Tally",
+        14: "Spire",
+        15: "Split",
+        17: "Nest",
+        18: "Throne",
+      }
+      const winNames ={
+        1: "Mil",
+        2: "Eco",
+        3: "Snail",
+      }
+
+      function setupChart() {
+        Chart.defaults.borderColor = '#aaaaaa';
+        Chart.defaults.color = 'white';
+
+        class DurationScale extends Chart.LinearScale {
+          getLabelForValue(seconds) {
+            const decimal = seconds - Math.floor(seconds);
+            const decimalStr = decimal
+                    .toLocaleString(undefined, { maximumFractionDigits: 2 })
+                    .substring(1);
+            return String(Math.floor(seconds / 60))
+              + ":"
+              + String(Math.floor(seconds % 60)).padStart(2, '0')
+              + decimalStr
+          }
+        }
+        DurationScale.id = 'duration';
+        Chart.register(DurationScale);
+
+        class BlueGoldSnailPositionScale extends Chart.LinearScale {
+          getLabelForValue(pos) {
+            return (pos > 0
+                    ? 'gold '
+                          + String(pos)
+                    : pos < 0
+                    ? 'blue '
+                          + String(-pos)
+                    : 'snail start');
+          }
+        }
+        BlueGoldSnailPositionScale.id = 'blueGoldSnailPosition';
+        Chart.register(BlueGoldSnailPositionScale);
+
+        class WinnerLoserSnailPositionScale extends Chart.LinearScale {
+          getLabelForValue(pos) {
+            return (pos > 0
+                    ? 'winner '
+                          + String(pos)
+                    : pos < 0
+                    ? 'loser '
+                          + String(-pos)
+                    : 'snail start');
+          }
+        }
+        WinnerLoserSnailPositionScale.id = 'winnerLoserSnailPosition';
+        Chart.register(WinnerLoserSnailPositionScale);
+      }
+      setupChart();
+
+
+      let dir;
+      let files;
+
+      async function openDir() {
+        if (!window.showDirectoryPicker) {
+          alert("Sorry, your web browser is unsupported. Try a recent build of Google Chrome/Chromium.");
+        }
+        dir = await window.showDirectoryPicker();
+        if (dir) {
+          // From https://developer.mozilla.org/en-US/docs/Web/API/WindowEventHandlers/onbeforeunload
+          // Make reload show a confirmation if a directory is loaded.
+          window.addEventListener('beforeunload', function (e) {
+            // Cancel the event
+            e.preventDefault(); // If you prevent default behavior in Mozilla Firefox prompt will always be shown
+            // Chrome requires returnValue to be set
+            e.returnValue = '';
+          });
+
+          files = new Array();
+          for await (const entry of dir.values()) {
+            const timestamp = (await entry.getFile()).lastModified;
+            files.push({filename: entry.name, timestamp, readable: true});
+          }
+
+          document.getElementById("dirhelp").style.display = "none";
+          document.getElementById("main").style.display = "";
+
+          initializeCharts();
+        }
+      }
+
+      // Separate function to make it easy to swap out for loading from memory.
+      async function getJson(file) {
+        if (!file.readable) return null;
+        try {
+          const fileHandle = await dir.getFileHandle(file.filename);
+          return JSON.parse(await (await fileHandle.getFile()).text());
+        } catch {
+          file.readable = false;
+          return null;
+        }
+      }
+      async function mappedFilteredJsons(mapFunction) {
+        // TODO Filters?
+        //return await Promise.all(
+                //files.map(file => getJson(file).then(mapFunction)));
+        const res = Array();
+        for (const file of files) {
+          const json = await getJson(file);
+          if (json === null) continue;
+          res.push(mapFunction(json));
+        }
+        return res;
+      }
+
+      let chart; // TODO multiple charts?
+      async function initializeCharts() {
+        const chartsDiv = document.getElementById("charts");
+        const canvas = document.createElement("canvas");
+        chartsDiv.appendChild(canvas);
+
+        chart = new Chart(canvas, {
+          options: {
+            responsive: true,
+            stacked: false,
+            scales: {
+              duration: {
+                type: 'duration',
+                axis: 'y',
+                ticks: {
+                  callback: seconds => String(Math.floor(seconds / 60))
+                    + ":"
+                    + String(Math.floor(seconds % 60)).padStart(2, '0')
+                },
+              }
+            },
+            plugins: {
+              tooltip: {
+                callbacks: {
+                  label: function(context) {
+                    let label = context.dataset.label || '';
+
+                    if (label) {
+                      label += ': ';
+                    }
+                    if (context.parsed.y !== null) {
+                      label += context.formattedValue;
+                    }
+                    return label;
+                  },
+                },
+              },
+            },
+          },
+          data: {
+            labels: ["All"],
+            datasets: [
+              {
+                type: 'boxplot',
+                label: "Duration",
+                yAxisID: 'duration',
+                data: [(await mappedFilteredJsons(
+                        stats => stats.games.map(g => g.duration)))
+                      .flat()],
+                backgroundColor: "transparent",
+                borderColor: "red",
+                borderWdith: 1,
+                itemRadius: 2,
+                itemBackgroundColor: "yellow",
+              }
+            ]
+          }
+        });
+      }
+    </script>
+  </head>
+  <body>
+    <a id="github" href="https://github.com/dperelman/kqb-stats-viewer">
+      Report issues or submit pull requests on GitHub
+    </a>
+    <button id="openDir" onclick="openDir()">Open directory</button>
+    <a href="stats.html" target="_blank">Stats viewer</a>
+    <a href="bgl-browser.html" target="_blank">BGL match browser</a>
+    <div id="dirhelp">
+      <h1>How to use</h1>
+      <p>
+        (Unfortunately, Google Chrome/Chromium is required;
+        Firefox does not support the "open directory" API.)
+      </p>
+      <p>
+        To summarize your Killer Queen Black stats, select your
+        <tt>match-stats</tt> directory. Copy the directory below corresponding
+        to your OS, click the "Open directory" button the top-left
+        and paste that in to the directory selection dialog.
+        You will be asked to confirm that you want to grant
+        "view files" permissions on that directory.
+        This page will never modify your stats files
+        or ask for permissions to do, and works entirely locally
+        (i.e., your stats are not sent to a server).
+      </p>
+      <p>
+        Once you have loaded your stats directory, options will appear
+        to select what to chart.
+      </p>
+      <p>
+        You can post feedback on
+        <a href = "https://github.com/dperelman/kqb-stats-viewer">GitHub</a>
+        or contact me at <tt>aebonyne#2493</tt> on Discord.
+      </p>
+      <h2>Default directories:</h2>
+      <dl>
+        <dt>Windows</dt>
+        <dd>%USERPROFILE%\AppData\LocalLow\Liquid Bit, LLC\Killer Queen Black\match-stats</dd>
+        <dt>Mac</dt>
+        <dd>?</dd>
+        <dt>Linux (Steam Play/Proton)</dt>
+        <dd>~/.local/share/Steam/steamapps/compatdata/663670/pfx/drive_c/users/steamuser/AppData/LocalLow/Liquid Bit, LLC/Killer Queen Black/match-stats/</dd>
+      </dl>
+    </div>
+    <div id="main">
+      <div id="options"></div>
+      <div id="charts"></div>
+    </div>
+    <footer>
+      This is an unofficial tool for summarizing the JSON stats files generated
+      at the end of every match by the Windows version of
+      <a href = "http://www.killerqueenblack.com/">Killer Queen Black</a>.
+    </footer>
+  </body>
+</html>
+
