@@ -23,6 +23,7 @@ footer {
     </style>
     <script language="javascript" src="external/chart.min.js"></script>
     <script language="javascript" src="external/chartjs-chart-boxplot/index.umd.min.js"></script>
+    <script language="javascript" src="external/chartjs-adapter-date-fns.min.js"></script>
     <script language="javascript" >
       const mapNames = {
         2:  "Pod",
@@ -38,6 +39,46 @@ footer {
         1: "Mil",
         2: "Eco",
         3: "Snail",
+      }
+
+      // Based on https://stackoverflow.com/a/68275240
+      class Multiset {
+        _backing = new Map();
+        add(value) {
+          if (this._backing.has(value)) {
+            this._backing.set(value, 1 + this._backing.get(value));
+          } else {
+            this._backing.set(value, 1);
+          }
+        }
+
+        delete(value) {
+          if (this._backing.get(value) > 0) {
+            this._backing.set(value, this._backing.get(value) - 1);
+          } else {
+            //do nothing
+          }
+        }
+
+        get(value) {
+          if (this._backing.get(value) > 0) {
+            return this._backing.get(value);
+          } else {
+            return 0;
+          }
+        }
+
+        keys() {
+          return this._backing.keys();
+        }
+
+        entries() {
+          return this._backing.entries();
+        }
+
+        size() {
+          return [...this._backing.values()].reduce((a,b) => a+b);
+        }
       }
 
       function setupChart() {
@@ -140,13 +181,46 @@ footer {
         for (const file of files) {
           const json = await getJson(file);
           if (json === null) continue;
-          res.push(mapFunction(json));
+          const mappedValue = mapFunction(json)
+          if (mappedValue != undefined) res.push(mappedValue);
         }
         return res;
       }
 
+      let players;
+      async function loadPlayersList() {
+        const playersMap = new Map();
+
+        await mappedFilteredJsons(stats => {
+          stats.profiles.forEach(profile => {
+            const id = profile.combinedId;
+            let player = playersMap.get(id);
+            if (player === undefined) {
+              player = {id, names: new Multiset()};
+              playersMap.set(id, player);
+            }
+            player.names.add(profile.displayName);
+          });
+        });
+        
+        for (const player of playersMap.values()) {
+          player.setsPlayed = player.names.size();
+          player.orderedNames = [...player.names.entries()]
+                  .sort((a,b) => b[1] - a[1]).map(a => a[0]);
+          player.displayName = player.orderedNames.shift();
+          player.allNames = player.displayName
+                  + (player.orderedNames.length == 0
+                          ? ""
+                          : " (a.k.a. " + player.orderedNames.join(", ") + ")");
+        }
+        players = [...playersMap.values()]
+                .sort((a,b) => b.setsPlayed - a.setsPlayed);
+      }
+
       let chart; // TODO multiple charts?
       async function initializeCharts() {
+        await loadPlayersList();
+
         const chartsDiv = document.getElementById("charts");
         const canvas = document.createElement("canvas");
         chartsDiv.appendChild(canvas);
@@ -156,7 +230,7 @@ footer {
             responsive: true,
             stacked: false,
             scales: {
-              duration: {
+              yDuration: {
                 type: 'duration',
                 axis: 'y',
                 ticks: {
@@ -164,7 +238,20 @@ footer {
                     + ":"
                     + String(Math.floor(seconds % 60)).padStart(2, '0')
                 },
-              }
+              },
+              yRank: {
+                type: 'linear',
+                axis: 'y',
+                // TODO ticks/colors by rank?
+              },
+              //time: {
+                //type: 'time',
+                //axis: 'x',
+              //},
+              x: {
+                type: 'category',
+                axis: 'x',
+              },
             },
             plugins: {
               tooltip: {
@@ -190,7 +277,7 @@ footer {
               {
                 type: 'boxplot',
                 label: "Duration",
-                yAxisID: 'duration',
+                yAxisID: 'yDuration',
                 data: [(await mappedFilteredJsons(
                         stats => stats.games.map(g => g.duration)))
                       .flat()],
@@ -203,6 +290,12 @@ footer {
             ]
           }
         });
+      }
+
+      async function updateCharts() {
+        
+
+        chart.update();
       }
     </script>
   </head>
